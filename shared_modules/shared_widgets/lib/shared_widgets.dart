@@ -15,7 +15,7 @@ class SharedCustomButton extends StatelessWidget {
       onPressed: onPressed,
       child: Text(title),
       style: ElevatedButton.styleFrom(
-        primary: Colors.green,
+        backgroundColor: Colors.green,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
     );

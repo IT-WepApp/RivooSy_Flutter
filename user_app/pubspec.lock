@@ -121,21 +121,21 @@ packages:
       path: "../shared_modules/shared_models"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   shared_services:
     dependency: "direct main"
     description:
       path: "../shared_modules/shared_services"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   shared_widgets:
     dependency: "direct main"
     description:
       path: "../shared_modules/shared_widgets"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -206,5 +206,4 @@ packages:
     source: hosted
     version: "13.0.0"
 sdks:
-  dart: ">=3.3.4 <4.0.0"
-  flutter: ">=1.17.0"
+  dart: ">=3.2.0-0 <4.0.0"

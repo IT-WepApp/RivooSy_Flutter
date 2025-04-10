@@ -5,10 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="51f6ecab-9eb6-49b5-b2f8-7175c5fbfd8e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ci_cd/workflows/ci_workflow.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/integration_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared_modules/shared_widgets/lib/home_choice_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/RivooSy_Flutter.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/RivooSy_Flutter.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin_panel/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/admin_panel/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin_panel/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/admin_panel/test/widget_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/delivery_app/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/delivery_app/test/widget_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/seller_panel/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/seller_panel/test/widget_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared_modules/shared_models/test/shared_models_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/shared_modules/shared_models/test/shared_models_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared_modules/shared_services/test/shared_services_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/shared_modules/shared_services/test/shared_services_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared_modules/shared_widgets/lib/shared_widgets.dart" beforeDir="false" afterPath="$PROJECT_DIR$/shared_modules/shared_widgets/lib/shared_widgets.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared_modules/shared_widgets/test/shared_widgets_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/shared_modules/shared_widgets/test/shared_widgets_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/integration_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/tests/integration_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/user_app/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user_app/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/user_app/test/widget_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
