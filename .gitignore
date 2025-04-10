@@ -1,0 +1,28 @@
+# Flutter/Dart related
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+generated_plugin_registrant.dart
+
+# Build outputs
+**/build/
+
+# Android related
+**/android/**/gradle-wrapper.jar
+
+# iOS related
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+
+# IntelliJ/Android Studio
+*.iml
+.idea/
+
+# VS Code
+.vscode/
+
+# Mac system files
+.DS_Store
