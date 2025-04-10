@@ -1,0 +1,24 @@
+name: delivery_app
+description: تطبيق التوصيل.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_models:
+    path: ../shared_modules/shared_models
+  shared_services:
+    path: ../shared_modules/shared_services
+  shared_widgets:
+    path: ../shared_modules/shared_widgets
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
