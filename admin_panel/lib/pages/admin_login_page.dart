@@ -13,39 +13,50 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
   Future<void> _login() async {
-    if (_formKey.currentState!.validate()) { // تحقق من صحة النموذج
-      try { // ابدأ محاولة تسجيل الدخول
-        await FirebaseAuth.instance.signInWithEmailAndPassword( // حاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim());
-        final user = FirebaseAuth.instance.currentUser; // احصل على المستخدم الحالي
-        if (user != null) { // إذا كان هناك مستخدم مسجل الدخول
-          final uid = user.uid; // احصل على معرف المستخدم
-          final userData = await UserService().getUser(uid); // احصل على بيانات المستخدم من خدمة المستخدم
-          if (userData != null && userData.role == 'admin') { // إذا كانت بيانات المستخدم موجودة والدور هو 'admin'
-            Navigator.pushReplacementNamed(context, '/adminHome'); // انتقل إلى الصفحة الرئيسية للمشرف
-          } else { // إذا لم يكن لديه الصلاحيات
-            _showErrorSnackBar('Unauthorized: Admins only.'); // اعرض رسالة خطأ
-            await FirebaseAuth.instance.signOut(); // قم بتسجيل خروج المستخدم
-          }
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      final user = FirebaseAuth.instance.currentUser;
+      if (!mounted) return;
+
+      if (user != null) {
+        final uid = user.uid;
+        final userData = await UserService().getUser(uid);
+        if (!mounted) return;
+
+        if (userData != null && userData.role == 'admin') {
+          Navigator.pushReplacementNamed(context, '/adminHome');
         } else {
-          _showErrorSnackBar('Authentication error.');
+          _showErrorSnackBar('Unauthorized: Admins only.');
+          await FirebaseAuth.instance.signOut();
         }
-      } on FirebaseAuthException catch (e) {
-        String errorMessage;
-        if (e.code == 'user-not-found') {
-          errorMessage = 'Admin email not found.';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'Incorrect admin password.';
-        } else {
-          errorMessage = 'Login error: ${e.message}';
-        }
-        _showErrorSnackBar(errorMessage);
-      } catch (e) {
-        _showErrorSnackBar('An unexpected error occurred: ${e.toString()}');
+      } else {
+        _showErrorSnackBar('Authentication error.');
       }
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      String errorMessage;
+      if (e.code == 'user-not-found') {
+        errorMessage = 'Admin email not found.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Incorrect admin password.';
+      } else {
+        errorMessage = 'Login error: ${e.message}';
+      }
+      _showErrorSnackBar(errorMessage);
+    } catch (e) {
+      if (!mounted) return;
+      _showErrorSnackBar('An unexpected error occurred: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -97,10 +108,11 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   hintText: "Enter your admin email",
                   prefixIcon: Icon(Icons.email, color: Colors.blue.shade400),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // حدود الحقل دائرية
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
+                    borderSide:
+                        BorderSide(color: Colors.blue.shade700, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -126,7 +138,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
+                    borderSide:
+                        BorderSide(color: Colors.blue.shade700, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -141,21 +154,24 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 },
               ),
               const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  textStyle: const TextStyle(fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  "Login",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade700,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 15),
+                        textStyle: const TextStyle(fontSize: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
             ],
           ),
         ),

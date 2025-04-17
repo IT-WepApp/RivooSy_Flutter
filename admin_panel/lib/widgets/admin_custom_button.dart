@@ -14,9 +14,12 @@ class AdminCustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: Text(label, style: const TextStyle(fontSize: 16)),
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 16),
       ),
     );
   }

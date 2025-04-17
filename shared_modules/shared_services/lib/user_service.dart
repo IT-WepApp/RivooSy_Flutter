@@ -1,3 +1,4 @@
+import 'dart:developer'; // ✅ استيراد log
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_models/shared_models.dart'; // ✅ تصحيح الاستيراد
 
@@ -10,7 +11,7 @@ class UserService {
     try {
       await _usersCollection.doc(user.id).set(user.toJson());
     } catch (e) {
-      print("Error creating user: $e");
+      log("Error creating user: $e");
       rethrow;
     }
   }
@@ -23,7 +24,7 @@ class UserService {
       final data = doc.data() as Map<String, dynamic>?;
       return data == null ? null : UserModel.fromJson(data);
     } catch (e) {
-      print("Error getting user: $e");
+      log("Error getting user: $e");
       rethrow;
     }
   }
@@ -32,7 +33,7 @@ class UserService {
     try {
       await _usersCollection.doc(user.id).update(user.toJson());
     } catch (e) {
-      print("Error updating user: $e");
+      log("Error updating user: $e");
       rethrow;
     }
   }
@@ -41,7 +42,7 @@ class UserService {
     try {
       await _usersCollection.doc(userId).delete();
     } catch (e) {
-      print("Error deleting user: $e");
+      log("Error deleting user: $e");
       rethrow;
     }
   }
@@ -57,7 +58,7 @@ class UserService {
       final data = snapshot.docs.first.data() as Map<String, dynamic>?;
       return data == null ? null : UserModel.fromJson(data);
     } catch (e) {
-      print("Error getting user by email: $e");
+      log("Error getting user by email: $e");
       rethrow;
     }
   }

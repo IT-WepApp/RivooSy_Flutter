@@ -13,11 +13,11 @@ class SharedCustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: Text(title),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.green,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
+      child: Text(title),
     );
   }
 }

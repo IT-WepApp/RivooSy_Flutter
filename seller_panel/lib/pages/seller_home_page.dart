@@ -1,9 +1,10 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:shared_services/shared_services.dart';
 import 'package:shared_models/shared_models.dart';
 
 class SellerHomePage extends StatefulWidget {
-  const SellerHomePage({super.key});
+  const SellerHomePage({Key? key}) : super(key: key);
 
   @override
   State<SellerHomePage> createState() => _SellerHomePageState();
@@ -22,24 +23,35 @@ class _SellerHomePageState extends State<SellerHomePage> {
 
   Future<void> _fetchOrders() async {
     try {
-      const sellerId = 'some_seller_id'; // Replace with actual seller ID
-      _orders = await _orderService.getOrdersBySeller(sellerId);
-    } catch (e) {
-      print('Error fetching orders: $e');
-      _orders = [];
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      const sellerId = 'some_seller_id'; // استبدل بالمعرف الحقيقي
+      final orders = await _orderService.getOrdersBySeller(sellerId);
+      if (mounted) {
+        setState(() => _orders = orders);
+      }
+    } catch (e, st) {
+      developer.log(
+        'Error fetching orders',
+        error: e,
+        stackTrace: st,
+        name: 'SellerHomePage',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('فشل في جلب الطلبات')),
+        );
+        setState(() => _orders = []);
+      }
+    }
+    // الآن ننهي التحميل بعد المحاولة، دون استخدام return في finally
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('لوحة تاجر'),
-      ),
+      appBar: AppBar(title: const Text('لوحة تاجر')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _orders.isEmpty

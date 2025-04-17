@@ -6,7 +6,7 @@ class DeliveryHomePage extends StatefulWidget {
   const DeliveryHomePage({Key? key}) : super(key: key);
 
   @override
-  _DeliveryHomePageState createState() => _DeliveryHomePageState();
+  State<DeliveryHomePage> createState() => _DeliveryHomePageState();
 }
 
 class _DeliveryHomePageState extends State<DeliveryHomePage> {
@@ -20,8 +20,9 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
   }
 
   Future<void> _fetchOrders() async {
-    _orders = await _orderService.getAllOrders();
-    setState(() {});
+    final orders = await _orderService.getAllOrders();
+    if (!mounted) return;
+    setState(() => _orders = orders);
   }
 
   @override

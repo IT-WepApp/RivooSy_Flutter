@@ -1,5 +1,6 @@
+import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_models/shared_models.dart'; // Assuming your shared_models package
+import 'package:shared_models/shared_models.dart';
 
 class OrderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -7,8 +8,13 @@ class OrderService {
   Future<void> createOrder(OrderModel order) async {
     try {
       await _firestore.collection('orders').doc(order.id).set(order.toJson());
-    } catch (e) {
-      print('Error creating order: $e');
+    } catch (e, st) {
+      developer.log(
+        'Error creating order',
+        error: e,
+        stackTrace: st,
+        name: 'OrderService',
+      );
       rethrow;
     }
   }
@@ -20,8 +26,13 @@ class OrderService {
         return OrderModel.fromJson(doc.data() as Map<String, dynamic>);
       }
       return null;
-    } catch (e) {
-      print('Error getting order: $e');
+    } catch (e, st) {
+      developer.log(
+        'Error getting order',
+        error: e,
+        stackTrace: st,
+        name: 'OrderService',
+      );
       rethrow;
     }
   }
@@ -29,8 +40,13 @@ class OrderService {
   Future<void> updateOrder(OrderModel order) async {
     try {
       await _firestore.collection('orders').doc(order.id).update(order.toJson());
-    } catch (e) {
-      print('Error updating order: $e');
+    } catch (e, st) {
+      developer.log(
+        'Error updating order',
+        error: e,
+        stackTrace: st,
+        name: 'OrderService',
+      );
       rethrow;
     }
   }
@@ -38,8 +54,13 @@ class OrderService {
   Future<void> deleteOrder(String orderId) async {
     try {
       await _firestore.collection('orders').doc(orderId).delete();
-    } catch (e) {
-      print('Error deleting order: $e');
+    } catch (e, st) {
+      developer.log(
+        'Error deleting order',
+        error: e,
+        stackTrace: st,
+        name: 'OrderService',
+      );
       rethrow;
     }
   }
@@ -53,8 +74,13 @@ class OrderService {
       return querySnapshot.docs
           .map((doc) => OrderModel.fromJson(doc.data()))
           .toList();
-    } catch (e) {
-      print('Error getting orders by user: $e');
+    } catch (e, st) {
+      developer.log(
+        'Error getting orders by user',
+        error: e,
+        stackTrace: st,
+        name: 'OrderService',
+      );
       rethrow;
     }
   }
@@ -65,8 +91,13 @@ class OrderService {
       return querySnapshot.docs
           .map((doc) => OrderModel.fromJson(doc.data()))
           .toList();
-    } catch (e) {
-      print('Error getting all orders: $e');
+    } catch (e, st) {
+      developer.log(
+        'Error getting all orders',
+        error: e,
+        stackTrace: st,
+        name: 'OrderService',
+      );
       rethrow;
     }
   }
@@ -77,12 +108,16 @@ class OrderService {
           .collection('orders')
           .where('sellerId', isEqualTo: sellerId)
           .get();
-
       return querySnapshot.docs
           .map((doc) => OrderModel.fromJson(doc.data()))
           .toList();
-    } catch (e) {
-      print('Error getting orders by seller: $e');
+    } catch (e, st) {
+      developer.log(
+        'Error getting orders by seller',
+        error: e,
+        stackTrace: st,
+        name: 'OrderService',
+      );
       rethrow;
     }
   }

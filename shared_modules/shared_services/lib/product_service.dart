@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_models/shared_models.dart'; // Assuming your shared_models package
 
@@ -8,8 +9,8 @@ class ProductService {
     try {
       await _firestore.collection('products').doc(product.id).set(product.toJson());
     } catch (e) {
-      print('Error creating product: $e');
-      rethrow; // Re-throw the error to be handled by the caller
+      log('Error creating product: $e');
+      rethrow;
     }
   }
 
@@ -21,7 +22,7 @@ class ProductService {
       }
       return null;
     } catch (e) {
-      print('Error getting product: $e');
+      log('Error getting product: $e');
       rethrow;
     }
   }
@@ -30,7 +31,7 @@ class ProductService {
     try {
       await _firestore.collection('products').doc(product.id).update(product.toJson());
     } catch (e) {
-      print('Error updating product: $e');
+      log('Error updating product: $e');
       rethrow;
     }
   }
@@ -39,7 +40,7 @@ class ProductService {
     try {
       await _firestore.collection('products').doc(productId).delete();
     } catch (e) {
-      print('Error deleting product: $e');
+      log('Error deleting product: $e');
       rethrow;
     }
   }
@@ -54,7 +55,7 @@ class ProductService {
           .map((doc) => ProductModel.fromJson(doc.data()))
           .toList();
     } catch (e) {
-      print('Error getting products by seller: $e');
+      log('Error getting products by seller: $e');
       rethrow;
     }
   }
@@ -66,7 +67,7 @@ class ProductService {
           .map((doc) => ProductModel.fromJson(doc.data()))
           .toList();
     } catch (e) {
-      print('Error getting all products: $e');
+      log('Error getting all products: $e');
       rethrow;
     }
   }
