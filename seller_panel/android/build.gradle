@@ -1,3 +1,28 @@
+// android/build.gradle  (seller_panel)
+
+// -------------------------------------------------------------------
+// 1) buildscript: يحدد مستودعات وإضافات Gradle على مستوى المشروع
+// -------------------------------------------------------------------
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Android Gradle Plugin – يلزم Gradle 8.4+ (متوافق مع 8.5)
+        classpath "com.android.tools.build:gradle:8.3.0"
+
+        // Kotlin Gradle Plugin – آخر نسخة مدعومة مع AGP 8.3
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23"
+
+        // Google Services (Firebase وغيره)
+        classpath "com.google.gms:google-services:4.4.1"
+    }
+}
+
+// -------------------------------------------------------------------
+// 2) مستودعات مشتركـة لكل الوحدات (sub‑projects)
+// -------------------------------------------------------------------
 allprojects {
     repositories {
         google()
@@ -5,14 +30,20 @@ allprojects {
     }
 }
 
-rootProject.buildDir = '../build'
-subprojects {
+// -------------------------------------------------------------------
+// 3) تنظيم مجلد build ليكون خارج الشجرة المصدرية
+// -------------------------------------------------------------------
+rootProject.buildDir = "../build"
+
+subprojects { project ->
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(':app')
+    // يضمن أن تقييـم 'app' يسبق باقي الوحدات عند الحاجة
+    project.evaluationDependsOn(":app")
 }
 
+// -------------------------------------------------------------------
+// 4) مهمّة تنظيف واحدة مشتركة
+// -------------------------------------------------------------------
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }
