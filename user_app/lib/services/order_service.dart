@@ -34,7 +34,7 @@ class OrderService {
 
       return querySnapshot.docs.map((doc) => OrderModel.fromJson({
             'id': doc.id,
-            ...doc.data() as Map<String, dynamic>,
+            ...doc.data(),
           })).toList();
     } catch (e) {
       print('Error fetching orders for user: $e');

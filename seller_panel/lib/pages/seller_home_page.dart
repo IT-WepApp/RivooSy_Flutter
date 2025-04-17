@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_services/shared_services.dart';
 import 'package:shared_models/shared_models.dart';
-import 'package:shared_widgets/shared_widgets.dart';
 
 class SellerHomePage extends StatefulWidget {
   const SellerHomePage({super.key});

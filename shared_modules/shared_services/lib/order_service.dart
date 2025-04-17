@@ -52,7 +52,7 @@ class OrderService {
           .where('userId', isEqualTo: userId)
           .get();
       return querySnapshot.docs
-          .map((doc) => OrderModel.fromJson(doc.data() as Map<String, dynamic>))
+          .map((doc) => OrderModel.fromJson(doc.data()))
           .toList();
     } catch (e) {
       print('Error getting orders by user: $e');
@@ -64,7 +64,7 @@ class OrderService {
     try {
       final querySnapshot = await _firestore.collection('orders').get();
       return querySnapshot.docs
-          .map((doc) => OrderModel.fromJson(doc.data() as Map<String, dynamic>))
+          .map((doc) => OrderModel.fromJson(doc.data()))
           .toList();
     } catch (e) {
       print('Error getting all orders: $e');
@@ -80,7 +80,7 @@ class OrderService {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => OrderModel.fromJson(doc.data() as Map<String, dynamic>))
+          .map((doc) => OrderModel.fromJson(doc.data()))
           .toList();
     } catch (e) {
       print('Error getting orders by seller: $e');

@@ -51,7 +51,7 @@ class ProductService {
           .where('sellerId', isEqualTo: sellerId)
           .get();
       return querySnapshot.docs
-          .map((doc) => ProductModel.fromJson(doc.data() as Map<String, dynamic>))
+          .map((doc) => ProductModel.fromJson(doc.data()))
           .toList();
     } catch (e) {
       print('Error getting products by seller: $e');
@@ -63,7 +63,7 @@ class ProductService {
     try {
       final querySnapshot = await _firestore.collection('products').get();
       return querySnapshot.docs
-          .map((doc) => ProductModel.fromJson(doc.data() as Map<String, dynamic>))
+          .map((doc) => ProductModel.fromJson(doc.data()))
           .toList();
     } catch (e) {
       print('Error getting all products: $e');

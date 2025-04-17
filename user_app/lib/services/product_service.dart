@@ -1,5 +1,4 @@
 import 'package:user_app/models/product_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductService {
   Future<List<Product>> getProductsByStoreId(String storeId) async {

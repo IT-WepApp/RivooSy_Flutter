@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_services/shared_services.dart'; // Import shared services
 
 class SellerLoginPage extends StatefulWidget {
