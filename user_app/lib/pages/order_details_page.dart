@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:user_app/services/order_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_models/order_model.dart';
 
 class OrderDetailsPage extends StatefulWidget {
   final String orderId;
@@ -14,7 +15,7 @@ class OrderDetailsPage extends StatefulWidget {
 
 class _OrderDetailsPageState extends State<OrderDetailsPage> {
   final OrderService _orderService = OrderService();
-  late Future<Map<String, dynamic>> _orderDetailsFuture;
+  late Future<OrderModel?> _orderDetailsFuture;
 
   @override
   void initState() {
@@ -28,20 +29,21 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       appBar: AppBar(
         title: const Text('Order Details'),
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
+      body: FutureBuilder<OrderModel?>(
         future: _orderDetailsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: \${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data == null) {
             return const Center(child: Text('Order not found'));
           } else {
             final order = snapshot.data!;
-            final orderDate = (order['orderDate'] as Timestamp).toDate();
-            final products = order['products'] as List<dynamic>;
-            final totalPrice = order['totalPrice'] as double;
+            final orderDate = order.createdAt.toDate();
+            final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(orderDate);
+            final products = order.products;
+            final totalPrice = order.total;
 
             return Padding(
               padding: const EdgeInsets.all(16.0),
@@ -49,12 +51,12 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Order ID: ${widget.orderId}',
+                    'Order ID: \${order.id}',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Date: ${DateFormat('yyyy-MM-dd HH:mm').format(orderDate)}',
+                    'Date: \$formattedDate',
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 20),
@@ -67,17 +69,17 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     child: ListView.builder(
                       itemCount: products.length,
                       itemBuilder: (context, index) {
-                        final product = products[index] as Map<String, dynamic>;
+                        final product = products[index];
                         return ListTile(
-                          title: Text(product['name'] as String),
-                          subtitle: Text('Quantity: ${product['quantity']}, Price: \$${product['price']}'),
+                          title: Text(product.name),
+                          subtitle: Text('Quantity: \${product.quantity}, Price: \$\${product.price}'),
                         );
                       },
                     ),
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Total Price: \$${totalPrice.toStringAsFixed(2)}',
+                    'Total Price: \$\${totalPrice.toStringAsFixed(2)}',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],

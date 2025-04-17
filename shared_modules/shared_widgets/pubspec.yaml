@@ -8,5 +8,5 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_models: { path: /Users/builder/dev/food-delivery-system/shared_modules/shared_models }
-
+  shared_models:
+    path: ../shared_models

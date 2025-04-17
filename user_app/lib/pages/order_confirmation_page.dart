@@ -3,25 +3,20 @@ import 'package:user_app/models/cart_item_model.dart'; // Import CartItem
 import 'package:user_app/services/order_service.dart'; // Import OrderService
 import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 
-// Make sure to create OrderService and its methods as described
 class OrderConfirmationPage extends StatefulWidget {
   final List<CartItem> cartItems;
+  final double totalPrice;
 
-  const OrderConfirmationPage({super.key, required this.cartItems});
+  const OrderConfirmationPage({super.key, required this.cartItems, required this.totalPrice});
 
   @override
   State<OrderConfirmationPage> createState() => _OrderConfirmationPageState();
 }
 
 class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
-  double _calculateTotalPrice() {
-    return widget.cartItems.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
-  }
-
   Future<void> _placeOrder() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      // Handle case where user is not logged in
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('You must be logged in to place an order.')),
       );
@@ -29,16 +24,12 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
     }
 
     final userId = user.uid;
-    final totalPrice = _calculateTotalPrice();
+    await OrderService().placeOrder(userId, widget.cartItems, widget.totalPrice);
 
-    // Assuming you have an OrderService instance
-    await OrderService().placeOrder(userId, widget.cartItems, totalPrice);
-
-    // Display confirmation and navigate
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Order placed successfully!')),
     );
-    Navigator.pushReplacementNamed(context, '/my-orders'); // Replace with your MyOrdersPage route
+    Navigator.pushReplacementNamed(context, '/my-orders');
   }
 
   @override
@@ -58,7 +49,7 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
                       final item = widget.cartItems[index];
                       return ListTile(
                         title: Text(item.name),
-                        subtitle: Text('Quantity: ${item.quantity}, Price: \$${item.price.toStringAsFixed(2)}'),
+                        subtitle: Text('Quantity: \${item.quantity}, Price: \$\${item.price.toStringAsFixed(2)}'),
                       );
                     },
                   ),
@@ -66,14 +57,14 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Total: \$${_calculateTotalPrice().toStringAsFixed(2)}',
+                    'Total: \$\${widget.totalPrice.toStringAsFixed(2)}',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 ElevatedButton(
                   onPressed: _placeOrder,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Change color as needed
+                    backgroundColor: Colors.blue,
                     textStyle: const TextStyle(fontSize: 16),
                   ),
                   child: const Text(

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:user_app/services/cart_service.dart';
-import 'package:user_app/models/cart_item_model.dart'; // Assuming this model exists
-
+import 'package:user_app/models/cart_item_model.dart';
 
 class ShoppingCartPage extends StatefulWidget {
   const ShoppingCartPage({super.key});
@@ -10,7 +9,6 @@ class ShoppingCartPage extends StatefulWidget {
   @override
   State<ShoppingCartPage> createState() => _ShoppingCartPageState();
 }
-
 
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
   late Future<List<CartItem>> _cartItemsFuture;
@@ -27,8 +25,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     if (userId != null) {
       return _cartService.getCartItems(userId);
     } else {
-      // Handle case where user is not logged in (e.g., redirect to login)
-      return []; // Or throw an exception
+      return [];
     }
   }
 
@@ -48,7 +45,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: \${snapshot.error}'));
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             final cartItems = snapshot.data!;
             final totalPrice = _calculateTotalPrice(cartItems);
@@ -66,7 +63,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Total: \$${totalPrice.toStringAsFixed(2)}',
+                    'Total: \$\${totalPrice.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -97,7 +94,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
       margin: const EdgeInsets.all(8.0),
       child: ListTile(
         title: Text(item.name),
-        subtitle: Text('Quantity: ${item.quantity}'),
+        subtitle: Text('Quantity: \${item.quantity}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -113,19 +110,15 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               icon: const Icon(Icons.delete),
               onPressed: () => _removeItem(item),
             ),
-          ],),
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding = const EdgeInsets.all(16.0),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _updateQuantity(CartItem item, int newQuantity) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      // Handle case where user is not logged in
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please log in.')),
       );
@@ -134,26 +127,21 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
 
     if (newQuantity > 0) {
       try {
-        await _cartService.updateCartItemQuantity(
-            userId, item.productId, newQuantity);
-        // Refresh cart items after update
+        await _cartService.updateCartItemQuantity(userId, item.productId, newQuantity);
         setState(() {
           _cartItemsFuture = _fetchCartItems();
         });
       } catch (e) {
-        print('Error updating quantity: $e');
-        // Optionally, show an error message to the user
+        print('Error updating quantity: \$e');
       }
     } else {
       try {
         await _cartService.removeCartItem(userId, item.productId);
-        // Refresh cart items after removal
         setState(() {
           _cartItemsFuture = _fetchCartItems();
         });
       } catch (e) {
-        print('Error removing item: $e');
-        // Optionally, show an error message to the user
+        print('Error removing item: \$e');
       }
     }
   }
@@ -161,7 +149,6 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   Future<void> _removeItem(CartItem item) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      // Handle case where user is not logged in
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please log in.')),
       );
@@ -170,21 +157,18 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
 
     try {
       await _cartService.removeCartItem(userId, item.productId);
-      // Refresh cart items after removal
       setState(() {
         _cartItemsFuture = _fetchCartItems();
       });
     } catch (e) {
-      print('Error removing item: $e');
-      // Optionally, show an error message to the user
+      print('Error removing item: \$e');
     }
   }
 
   Future<void> _checkout(List<CartItem> cartItems, double totalPrice) async {
-    // You might want to add a check here to ensure the user is logged in
     Navigator.pushNamed(
       context,
-      '/order-confirmation', // Make sure this route is defined in your main.dart
+      '/order-confirmation',
       arguments: {
         'cartItems': cartItems,
         'totalPrice': totalPrice,

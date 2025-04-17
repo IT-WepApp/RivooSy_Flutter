@@ -5,13 +5,13 @@ class UserHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar:  AppBar(
-        title:  Text('Home'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
       ),
-      body:  Center(
-        child:  Text('Welcome to the User App!'),
-        ),
+      body: const Center(
+        child: Text('Welcome to the User App!'),
+      ),
     );
   }
 }

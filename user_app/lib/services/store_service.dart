@@ -1,4 +1,6 @@
 import 'package:user_app/models/store_model.dart'; // Assuming this model exists
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class StoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

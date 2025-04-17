@@ -10,17 +10,25 @@ import 'package:user_app/pages/shopping_cart_page.dart';
 import 'package:user_app/pages/my_orders_page.dart';
 import 'package:user_app/pages/profile_page.dart';
 import 'package:user_app/pages/order_confirmation_page.dart';
-import 'package:user_app/utils/route_constants.dart';
 import 'package:user_app/services/notification_service.dart';
 import 'package:user_app/widgets/home_page_wrapper.dart';
+import 'package:user_app/services/user_service.dart';
 import 'firebase_options.dart';
+import 'package:user_app/pages/order_details_page.dart';
+
+
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  NotificationService.showLocalNotification(message);
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  runApp(const MyApp());
 }
 
 class LoginPage extends StatefulWidget {
@@ -41,7 +49,6 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     _setupFirebaseMessaging();
     getDeviceToken().then((_) {
-      // Subscribe to 'user' topic after getting the token
       FirebaseMessaging.instance.subscribeToTopic('user');
     });
     _loadCredentials();
@@ -49,98 +56,82 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _setupFirebaseMessaging() async {
     final messaging = FirebaseMessaging.instance;
-
-    // Request permissions
     final settings = await messaging.requestPermission(
       alert: true,
-      announcement: false,
       badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
       sound: true,
     );
-    print('User granted permission: ${settings.authorizationStatus}');
+    print('User granted permission: \${settings.authorizationStatus}');
 
-    // Foreground message handler
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       NotificationService.showLocalNotification(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Message opened from notification: ${message.data}');
+      print('Message opened from notification: \${message.data}');
     });
   }
 
   Future<void> _loadCredentials() async {
-      final prefs = await SharedPreferences.getInstance();
-      final email = prefs.getString('email') ?? '';
-      final password = prefs.getString('password') ?? '';
-      final rememberMe = prefs.getBool('rememberMe') ?? false;
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString('email') ?? '';
+    final password = prefs.getString('password') ?? '';
+    final rememberMe = prefs.getBool('rememberMe') ?? false;
 
-      setState(() {
-        _emailController.text = email;
-        _passwordController.text = password;
-        _rememberMe = rememberMe;
-      });
+    setState(() {
+      _emailController.text = email;
+      _passwordController.text = password;
+      _rememberMe = rememberMe;
+    });
 
-      if (_rememberMe && email.isNotEmpty && password.isNotEmpty) {
-        _login(email: email, password: _decrypt(password));
-      }
+    if (_rememberMe && email.isNotEmpty && password.isNotEmpty) {
+      _login(email: email, password: _decrypt(password));
+    }
   }
 
   Future<void> getDeviceToken() async {
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
-      print("FCM Token: $fcmToken");
+      print("FCM Token: \$fcmToken");
     } catch (e) {
-      print("Error getting FCM token: $e");
+      print("Error getting FCM token: \$e");
     }
   }
 
-
-
   Future<void> _login({String? email, String? password}) async {
-      if (_formKey.currentState?.validate() ?? true) {
-        try {
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: email ?? _emailController.text.trim(),
-            password: password ?? _passwordController.text.trim(),
-          );
-          final user = FirebaseAuth.instance.currentUser;
-          if (user != null) {
-            final userService = UserService();
-            final userType = await userService.getUserTypeFromDatabase(user.uid);
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setString('userType', userType);
+    if (_formKey.currentState?.validate() ?? true) {
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email ?? _emailController.text.trim(),
+          password: password ?? _passwordController.text.trim(),
+        );
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          final userService = UserService();
+          final userType = await userService.getUserTypeFromDatabase(user.uid);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('userType', userType);
 
-            await NotificationService().subscribeToTopic(userType);
-            _saveCredentials();
-          }
-        } on FirebaseAuthException catch (e) {
-          _handleAuthError(e);
-
-        } catch (e) {
-          _showErrorSnackBar('حدث خطأ: ${e.toString()}');
+          await NotificationService().subscribeToTopic(userType);
+          _saveCredentials();
         }
+      } on FirebaseAuthException catch (e) {
+        _handleAuthError(e);
+      } catch (e) {
+        _showErrorSnackBar('حدث خطأ: \${e.toString()}');
       }
+    }
   }
 
   String _encrypt(String text) {
-    return text.split('').map((char) {
-      final code = char.codeUnitAt(0);
-      return String.fromCharCode(code + 3);
-    }).join();
+    return text.split('').map((char) => String.fromCharCode(char.codeUnitAt(0) + 3)).join();
   }
 
   String _decrypt(String text) {
-    return text.split('').map((char) {
-      final code = char.codeUnitAt(0);
-      return String.fromCharCode(code - 3);
-    }).join();
+    return text.split('').map((char) => String.fromCharCode(char.codeUnitAt(0) - 3)).join();
   }
 
-Future<void> _saveCredentials() async {
+  Future<void> _saveCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
       await prefs.setString('email', _emailController.text.trim());
@@ -150,32 +141,27 @@ Future<void> _saveCredentials() async {
       await prefs.clear();
     }
   }
+
   void _handleAuthError(FirebaseAuthException e) {
-
-    if (e.code == 'user-not-found') {
-
     String errorMessage;
     if (e.code == 'user-not-found') {
-
       errorMessage = 'البريد الإلكتروني غير مسجل';
     } else if (e.code == 'wrong-password') {
       errorMessage = 'كلمة المرور غير صحيحة';
     } else {
-      errorMessage = 'حدث خطأ: ${e.message}';
+      errorMessage = 'حدث خطأ: \${e.message}';
     }
     _showErrorSnackBar(errorMessage);
   }
-}
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
       ),
-    );\
-  }\
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -198,8 +184,6 @@ Future<void> _saveCredentials() async {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // إضافة صورة أو شعار التطبيق (اختياري)
-              // Image.asset('assets/images/logo.png', height: 100),
               const SizedBox(height: 20),
               Text(
                 "مرحباً بك!",
@@ -285,11 +269,10 @@ Future<void> _saveCredentials() async {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-              ),
-                  child: const Text(
-                    "تسجيل الدخول",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                ),
+                child: const Text(
+                  "تسجيل الدخول",
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],
@@ -297,9 +280,8 @@ Future<void> _saveCredentials() async {
         ),
       ),
     );
+  }
 }
-
-import 'package:user_app/services/user_service.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -309,12 +291,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'تطبيق المستخدم',
       theme: ThemeData(
-        primarySwatch: Colors.blue,  
+        primarySwatch: Colors.blue,
       ),
       initialRoute: RouteConstants.home,
       routes: {
         RouteConstants.home: (context) => const AuthCheck(),
-        // RouteConstants.home: (context) => const HomePageWrapper(), // Wrapper for BottomNavigationBar
         RouteConstants.storeDetails: _storeDetailsRoute,
         RouteConstants.myOrders: (context) => const MyOrdersPage(),
         RouteConstants.orderDetails: _orderDetailsRoute,
@@ -324,27 +305,17 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  const _storeDetailsRoute = StoreDetailsRoute.build;
-  const _orderDetailsRoute = OrderDetailsRoute.build;
-  const _orderConfirmationRoute = OrderConfirmationRoute.build;
-}
-
-class StoreDetailsRoute {
-  static StoreDetailsPage build(BuildContext context) {
+  static Widget _storeDetailsRoute(BuildContext context) {
     final storeId = ModalRoute.of(context)!.settings.arguments as String;
     return StoreDetailsPage(storeId: storeId);
   }
-}
 
-class OrderDetailsRoute {
-  static OrderDetailsPage build(BuildContext context) {
+  static Widget _orderDetailsRoute(BuildContext context) {
     final orderId = ModalRoute.of(context)!.settings.arguments as String;
     return OrderDetailsPage(orderId: orderId);
   }
-}
 
-class OrderConfirmationRoute {
-  static OrderConfirmationPage build(BuildContext context) {
+  static Widget _orderConfirmationRoute(BuildContext context) {
     final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return OrderConfirmationPage(
       cartItems: arguments['cartItems'],
@@ -352,9 +323,6 @@ class OrderConfirmationRoute {
     );
   }
 }
-
-
-
 
 class AuthCheck extends StatelessWidget {
   const AuthCheck({super.key});

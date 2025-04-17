@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_modules/shared_services/lib/user_service.dart';
+import 'package:shared_services/user_service.dart'; // ✅
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -38,20 +38,20 @@ class _ProfilePageState extends State<ProfilePage> {
         future: UserService().getUser(authUser.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Or a loading indicator
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Text('Error: \${snapshot.error}');
           } else if (snapshot.hasData) {
             final user = snapshot.data!;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Name: ${user.name}',
+                  'Name: \${user.name}',
                   style: const TextStyle(fontSize: 18),
                 ),
                 Text(
-                  'Email: ${user.email}',
+                  'Email: \${user.email}',
                   style: const TextStyle(fontSize: 18),
                 ),
               ],
@@ -61,6 +61,8 @@ class _ProfilePageState extends State<ProfilePage> {
           }
         },
       );
+    } else {
+      return const Text('No authenticated user.');
     }
   }
 
@@ -69,15 +71,12 @@ class _ProfilePageState extends State<ProfilePage> {
       await FirebaseAuth.instance.signOut();
       if (mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('User signed out!'),
-          ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User signed out!')),
+        );
       }
     } catch (e) {
-      print('Error signing out: $e');
+      print('Error signing out: \$e');
     }
-  }
-      ),
-    );
   }
 }
