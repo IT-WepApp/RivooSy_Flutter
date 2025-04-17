@@ -1,5 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_modules/shared_services.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -44,21 +44,18 @@ class NotificationService {
     return await _fcm.getToken();
   }
 
-  Future<void> handleBackgroundMessage(RemoteMessage message) async {
-    print("================Background Message===================");
-    print("Title: ${message.notification?.title}");
-    print("Body: ${message.notification?.body}");
-    print("Data: ${message.data}");
-    print("================================================");
+  
   }
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
 
-  Future<void> displayLocalNotification(RemoteMessage message) async {
-    String title = message.notification?.title ?? 'New Notification';
-    String body = message.notification?.body ?? 'You have a new update!';
-    showSimpleNotification(
-      Text(title),
-      subtitle: Text(body),
-      background: Colors.blue.shade700,
-      duration: const Duration(seconds: 5),);
-  }
+  print("================Background Message===================");
+  print("Title: ${message.notification?.title}");
+  print("Body: ${message.notification?.body}");
+  print("Data: ${message.data}");
+  print("================================================");
+}
 }
