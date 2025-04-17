@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:user_app/pages/user_home_page.dart';
 import 'package:user_app/pages/store_details_page.dart';
 import 'package:user_app/utils/route_constants.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:user_app/pages/shopping_cart_page.dart';
 import 'package:user_app/pages/my_orders_page.dart';
-import 'package:user_app/pages/profile_page.dart';
 import 'package:user_app/pages/order_confirmation_page.dart';
 import 'package:user_app/services/notification_service.dart';
 import 'package:user_app/widgets/home_page_wrapper.dart';
