@@ -324,9 +324,9 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  static const _storeDetailsRoute = StoreDetailsRoute.build;
-  static const _orderDetailsRoute = OrderDetailsRoute.build;
-  static const _orderConfirmationRoute = OrderConfirmationRoute.build;
+  const _storeDetailsRoute = StoreDetailsRoute.build;
+  const _orderDetailsRoute = OrderDetailsRoute.build;
+  const _orderConfirmationRoute = OrderConfirmationRoute.build;
 }
 
 class StoreDetailsRoute {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_modules/shared_services.dart';
-import 'package:shared_modules/shared_models.dart';
+import 'package:shared_services/shared_services.dart'; // or import 'package:shared_services/order_service.dart'; if you only need OrderService
+import 'package:shared_models/shared_models.dart'; 
 
-import '../../shared_widgets/lib/shared_widgets.dart'; // Assuming SharedButton is in shared_widgets
+import 'package:shared_widgets/shared_widgets.dart'; // Assuming SharedButton is in shared_widgets
 
 class SellerHomePage extends StatelessWidget {
   const SellerHomePage({super.key});

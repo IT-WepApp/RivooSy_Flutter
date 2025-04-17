@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_services/user_service.dart';
-import 'package:shared_models/shared_models.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});

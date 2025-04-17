@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_modules/shared_services.dart';
-import 'package:shared_modules/shared_models.dart';
+import 'package:shared_services/order_service.dart';
+import 'package:shared_models/shared_models.dart';
 
 class DeliveryHomePage extends StatefulWidget {
   const DeliveryHomePage({Key? key}) : super(key: key);
@@ -28,7 +28,7 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
       // For example, if you have a DeliveryService in shared_services:
       // assignedOrders = await DeliveryService().getAssignedOrders(deliveryPersonId);
       // Or using OrderService with a query:
-      assignedOrders = await OrderService().getOrdersByDeliveryId("someDeliveryId");
+      assignedOrders = await OrderService().getOrdersByUser("someDeliveryId");
     } catch (e) {
       debugPrint("Error loading assigned orders: $e");
       // Handle error appropriately, e.g., show a snackbar

@@ -23,4 +23,3 @@ class DeliveryApp extends StatelessWidget {
     );
   }
 }
-}
