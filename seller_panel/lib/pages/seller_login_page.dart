@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_services/user_service.dart'; // Assuming this path, adjust if needed
+import 'package:shared_modules/shared_services.dart'; // Import shared services
 
 class SellerLoginPage extends StatefulWidget {
   const SellerLoginPage({super.key});
@@ -27,10 +27,12 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
         final user = FirebaseAuth.instance.currentUser;
         if (user != null) {
           final uid = user.uid;
-          final userData = await UserService.getUserData(uid);
-          if (userData.exists && userData.data() != null) {
-            final role = userData.data()?['role'];
-            if (role == 'seller') {
+          // Use the shared UserService to get user data
+          final sharedUserService = UserService();
+          final userModel = await sharedUserService.getUser(uid);
+          if (userModel != null) {
+            // Check if the user's role is 'seller'
+            if (userModel.role == 'seller') {
                Navigator.pushReplacementNamed(context, '/sellerHome');
             } else {
               _showErrorSnackBar('Unauthorized: Sellers only.');

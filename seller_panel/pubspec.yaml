@@ -9,12 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_models:
-    path: ../shared_modules/shared_models
-  shared_services:
-    path: ../shared_modules/shared_services
-  shared_widgets:
-    path: ../shared_modules/shared_widgets
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:user_app/pages/user_home_page.dart';
 import 'package:user_app/pages/store_details_page.dart';
 import 'package:user_app/utils/route_constants.dart';
@@ -20,6 +21,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
+  FirebaseMessaging.onBackgroundMessage(NotificationService.handleBackgroundMessage);
 }
 
 class LoginPage extends StatefulWidget {
@@ -38,7 +40,37 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    _setupFirebaseMessaging();
+    getDeviceToken().then((_) {
+      // Subscribe to 'user' topic after getting the token
+      FirebaseMessaging.instance.subscribeToTopic('user');
+    });
     _loadCredentials();
+  }
+
+  Future<void> _setupFirebaseMessaging() async {
+    final messaging = FirebaseMessaging.instance;
+
+    // Request permissions
+    final settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    print('User granted permission: ${settings.authorizationStatus}');
+
+    // Foreground message handler
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      NotificationService.showLocalNotification(message);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('Message opened from notification: ${message.data}');
+    });
   }
 
   Future<void> _loadCredentials() async {
@@ -57,6 +89,17 @@ class _LoginPageState extends State<LoginPage> {
         _login(email: email, password: _decrypt(password));
       }
   }
+
+  Future<void> getDeviceToken() async {
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      print("FCM Token: $fcmToken");
+    } catch (e) {
+      print("Error getting FCM token: $e");
+    }
+  }
+
+
 
   Future<void> _login({String? email, String? password}) async {
       if (_formKey.currentState?.validate() ?? true) {

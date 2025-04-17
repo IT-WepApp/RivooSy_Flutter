@@ -1,31 +1,74 @@
 import 'package:flutter/material.dart';
-import '../widgets/seller_custom_button.dart';
+import 'package:shared_modules/shared_services.dart';
+import 'package:shared_modules/shared_models.dart';
+
+import '../../shared_widgets/lib/shared_widgets.dart'; // Assuming SharedButton is in shared_widgets
 
 class SellerHomePage extends StatelessWidget {
-  const SellerHomePage({Key? key}) : super(key: key);
+  const SellerHomePage({super.key});
+
+  @override
+  State<SellerHomePage> createState() => _SellerHomePageState();
+}
+
+class _SellerHomePageState extends State<SellerHomePage> {
+  final OrderService _orderService = OrderService();
+  List<OrderModel> _orders = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchOrders();
+  }
+
+  Future<void> _fetchOrders() async {
+    try {
+      // Assuming you have a way to identify the seller (e.g., from logged-in user)
+      const sellerId = 'some_seller_id'; // Replace with actual seller ID
+      _orders = await _orderService.getOrdersBySeller(sellerId);
+    } catch (e) {
+      // Handle error appropriately, e.g., show a snackbar
+      print('Error fetching orders: $e');
+      // For now, setting to an empty list in case of error
+      _orders = [];
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('لوحة المتجر'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('مرحباً بك في تطبيق صاحب المتجر'),
-            const SizedBox(height: 20),
-            SellerCustomButton(
-              label: 'عرض الطلبات',
-              onPressed: () {
-                // مثال على إجراء عرض الطلبات
-                debugPrint('عرض الطلبات');
-              },
-            ),
-          ],
+        appBar: AppBar(
+          title: const Text('لوحة تاجر'),
         ),
-      ),
-    );
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _orders.isEmpty
+                ? const Center(child: Text('لا توجد طلبات'))
+                : ListView.builder(
+                    itemCount: _orders.length,
+                    itemBuilder: (context, index) {
+                      final order = _orders[index];
+                      return Card(
+                        margin: const EdgeInsets.all(8.0),
+                        child: ListTile(
+                          title: Text('Order #${order.id}'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('User ID: ${order.userId}'),
+                              Text('Total: \$${order.total.toStringAsFixed(2)}'),
+                              Text('Status: ${order.status}'),
+                            ],
+                          ),
+                          // Add more details or actions as needed
+                        ),
+                      );
+                    },
+                  ));
   }
 }

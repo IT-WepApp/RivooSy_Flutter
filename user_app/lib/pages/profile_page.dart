@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_modules/shared_services.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -18,7 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildUserInfo(),
+            _buildUserInfo(context),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _signOut,
@@ -30,24 +31,36 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildUserInfo() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Name: ${user.displayName ?? 'Not available'}',
-            style: const TextStyle(fontSize: 18),
-          ),
-          Text(
-            'Email: ${user.email ?? 'Not available'}',
-            style: const TextStyle(fontSize: 18),
-          ),
-        ],
+  Widget _buildUserInfo(BuildContext context) {
+    final authUser = FirebaseAuth.instance.currentUser;
+    if (authUser != null) {
+      return FutureBuilder(
+        future: UserService().getUser(authUser.uid),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator(); // Or a loading indicator
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.hasData) {
+            final user = snapshot.data!;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Name: ${user.name}',
+                  style: const TextStyle(fontSize: 18),
+                ),
+                Text(
+                  'Email: ${user.email}',
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ],
+            );
+          } else {
+            return const Text('User data not found.');
+          }
+        },
       );
-    } else {
-      return const Text('You are not logged in.');
     }
   }
 
@@ -55,17 +68,15 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       await FirebaseAuth.instance.signOut();
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/login');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Signed out successfully.')),
-        );
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('User signed out!'),
+          ));
       }
     } catch (e) {
       print('Error signing out: $e');
-      // Optionally, display an error message to the user.
     }
   }
-}
       ),
     );
   }

@@ -3,7 +3,7 @@ import 'package:user_app/pages/user_home_page.dart';
 import 'package:user_app/pages/shopping_cart_page.dart';
 import 'package:user_app/pages/my_orders_page.dart';
 import 'package:user_app/pages/profile_page.dart';
-import 'package:user_app/utils/route_constants.dart'; // Import route constants
+// Import route constants
 
 class HomePageWrapper extends StatefulWidget {
   const HomePageWrapper({super.key});

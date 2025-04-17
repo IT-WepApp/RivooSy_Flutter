@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_services/user_service.dart';
+// Import shared models
 
 class DeliveryLoginPage extends StatefulWidget {
-  const DeliveryLoginPage({super.key});
+  const DeliveryLoginPage({Key? key}) : super(key: key);
 
   @override
-  State<DeliveryLoginPage> createState() => _DeliveryLoginPageState();
+  _DeliveryLoginPageState createState() => _DeliveryLoginPageState();
 }
 
 class _DeliveryLoginPageState extends State<DeliveryLoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
@@ -27,9 +37,9 @@ class _DeliveryLoginPageState extends State<DeliveryLoginPage> {
         final user = FirebaseAuth.instance.currentUser;
         if (user != null) {
           final uid = user.uid;
-          final userData = await UserService.getUserData(uid);
-          if (userData.exists && userData.data() != null) {
-            final role = userData.data()?['role'];
+          final userData = await UserService().getUser(uid);
+          if (userData != null) {
+            final role = userData.role;
             if (role == 'delivery') {
               Navigator.pushReplacementNamed(context, '/deliveryHome');
             } else {
@@ -50,124 +60,81 @@ class _DeliveryLoginPageState extends State<DeliveryLoginPage> {
         } else if (e.code == 'wrong-password') {
           errorMessage = 'كلمة المرور غير صحيحة';
         } else {
-          errorMessage = 'حدث خطأ: ${e.message}';
+          errorMessage = 'حدث خطأ أثناء تسجيل الدخول: ${e.message}';
         }
         _showErrorSnackBar(errorMessage);
       } catch (e) {
         _showErrorSnackBar('حدث خطأ: ${e.toString()}');
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Delivery Login"),
-        backgroundColor: Colors.blue.shade700,
+        title: Text("تسجيل دخول عامل التوصيل"),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade100, Colors.blue.shade50],
-          ),
-        ),
-        padding: const EdgeInsets.all(16),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // إضافة صورة أو شعار التطبيق (اختياري)
-              // Image.asset('assets/images/logo.png', height: 100),
-              const SizedBox(height: 20),
-              Text(
-                "Welcome!",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade800,
-                ),
-              ),
-              const SizedBox(height: 30),
+            children: <Widget>[
               TextFormField(
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  labelText: "Email",
-                  hintText: "Enter your email",
-                  prefixIcon: Icon(Icons.email, color: Colors.blue.shade400),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  labelText: "البريد الإلكتروني",
+                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Please enter your email";
+                    return "الرجاء إدخال البريد الإلكتروني";
                   }
-                  if (!value.contains('@') || !value.contains('.')) {
-                    return "Please enter a valid email";
+                  if (!value.contains('@')) {
+                    return "الرجاء إدخال بريد إلكتروني صحيح";
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 15),
+              SizedBox(height: 20),
               TextFormField(
                 controller: _passwordController,
-                obscureText: true,
                 decoration: InputDecoration(
-                  labelText: "Password",
-                  hintText: "Enter your password",
-                  prefixIcon: Icon(Icons.lock, color: Colors.blue.shade400),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  labelText: "كلمة المرور",
+                  border: OutlineInputBorder(),
                 ),
+                obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Please enter your password";
-                  }
-                  if (value.length < 6) {
-                    return "Password must be at least 6 characters";
+                    return "الرجاء إدخال كلمة المرور";
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  textStyle: const TextStyle(fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  "Login",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
+              SizedBox(height: 30),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade700,
+                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        textStyle: const TextStyle(fontSize: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        "تسجيل الدخول",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
             ],
           ),
         ),

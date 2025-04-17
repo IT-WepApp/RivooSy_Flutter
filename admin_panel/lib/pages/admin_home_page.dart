@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_modules/shared_services/order_service.dart';
+
 import '../widgets/admin_custom_button.dart';
 
 class AdminHomePage extends StatelessWidget {
@@ -19,8 +21,10 @@ class AdminHomePage extends StatelessWidget {
             AdminCustomButton(
               label: 'عرض التقارير',
               onPressed: () {
-                // مثال: تنفيذ عملية عرض التقارير
-                debugPrint('عرض التقارير');
+                // Use a shared service to fetch and display reports.
+                // This is just a placeholder, replace with actual implementation.
+                // For example:
+                // OrderService().getAllOrders().then((orders) => debugPrint('Orders: $orders'));
               },
             ),
           ],

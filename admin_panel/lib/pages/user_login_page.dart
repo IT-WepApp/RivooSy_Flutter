@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_services/user_service.dart';
+import 'package:shared_services/user_service.dart'; // تمت إضافة فاصلة منقوطة
 
 class UserLoginPage extends StatefulWidget {
   const UserLoginPage({super.key});
@@ -19,153 +18,72 @@ class _UserLoginPageState extends State<UserLoginPage> {
     if (_formKey.currentState!.validate()) {
       try {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim());
-
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
         final user = FirebaseAuth.instance.currentUser;
         if (user != null) {
           final uid = user.uid;
-          final userData = await UserService.getUserData(uid);
-          if (userData.exists && userData.data() != null) {
-            final role = userData.data()?['role'];
+          final userData = await UserService().getUser(uid); // تم تغيير استدعاء الطريقة
+          if (userData != null) { // تم تحديث التحقق من القيمة الفارغة
+            final role = userData.role; // الوصول إلى الدور من UserModel
             if (role == 'user') {
-              Navigator.pushReplacementNamed(context, '/userHome');
+              // الانتقال إلى الصفحة الرئيسية للمستخدم
+              print('User Login Successful: User Role');
             } else {
-              _showErrorSnackBar('Unauthorized: সাধারণ users only.');
-              await FirebaseAuth.instance.signOut();
+              // إظهار خطأ
+              print('Incorrect Role: Not a User');
             }
           } else {
-            _showErrorSnackBar('Could not retrieve user data.');
-            await FirebaseAuth.instance.signOut();
+            // إظهار خطأ
+            print('User Data not found');
           }
-        } else {
-          _showErrorSnackBar('Authentication error.');
         }
-        );
       } on FirebaseAuthException catch (e) {
-        String errorMessage;
-        if (e.code == 'user-not-found') {
-          errorMessage = 'البريد الإلكتروني غير مسجل';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'كلمة المرور غير صحيحة';
-        } else {
-          errorMessage = 'حدث خطأ: ${e.message}';
-        }
-        _showErrorSnackBar(errorMessage);
+        // معالجة أخطاء تسجيل الدخول
+        print('Firebase Auth Error: ${e.message}');
       } catch (e) {
-        _showErrorSnackBar('حدث خطأ: ${e.toString()}');
+        // معالجة أخطاء أخرى
+        print('Error: $e');
       }
     }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("User Login"), // Changed title
-        backgroundColor: Colors.blue.shade700,
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade100, Colors.blue.shade50],
-          ),
-        ),
-        padding: const EdgeInsets.all(16),
+      appBar: AppBar(title: const Text('User Login')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // إضافة صورة أو شعار التطبيق (اختياري)
-              // Image.asset('assets/images/logo.png', height: 100),
-              const SizedBox(height: 20),
-              Text(
-                "مرحباً بك!",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade800,
-                ),
-              ),
-              const SizedBox(height: 30),
               TextFormField(
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "البريد الإلكتروني",
-                  hintText: "أدخل بريدك الإلكتروني",
-                  prefixIcon: Icon(Icons.email, color: Colors.blue.shade400),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
+                decoration: const InputDecoration(labelText: 'Email'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "الرجاء إدخال البريد الإلكتروني";
-                  }
-                  if (!value.contains('@') || !value.contains('.')) {
-                    return "الرجاء إدخال بريد إلكتروني صحيح";
+                    return 'Please enter your email';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 15),
               TextFormField(
                 controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "كلمة المرور",
-                  hintText: "أدخل كلمة المرور",
-                  prefixIcon: Icon(Icons.lock, color: Colors.blue.shade400),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "الرجاء إدخال كلمة المرور";
-                  }
-                  if (value.length < 6) {
-                    return "يجب أن تكون كلمة المرور 6 أحرف على الأقل";
+                    return 'Please enter your password';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  textStyle: const TextStyle(fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  "تسجيل الدخول",
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: const Text('Login'),
               ),
             ],
           ),

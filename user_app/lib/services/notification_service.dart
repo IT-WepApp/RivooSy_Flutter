@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_modules/shared_services.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 const String userTypeKey = 'userType';
@@ -23,6 +24,7 @@ class NotificationService {
       sound: true,
     );
 
+    if(settings.authorizationStatus == AuthorizationStatus.authorized){
     print('User granted permission: ${settings.authorizationStatus}');
   }
 
@@ -38,40 +40,25 @@ class NotificationService {
     );
   }
 
-  Future<String> getUserType() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userType = prefs.getString(userTypeKey) ?? 'user';
-    print("==============NotificationService==================");
-    print("userType: $userType");
-    print("================================================");
-    return userType;
-  }
-
-  Future<void> subscribeToTopic(String userType) async {
-    String topic;
-    switch (userType) {
-      case 'user':
-        topic = 'user_notifications';
-        break;
-      case 'store':
-        topic = 'store_notifications';
-        break;
-      case 'delivery':
-        topic = 'delivery_notifications';
-        break;
-      case 'admin':
-        topic = 'admin_notifications';
-        break;
-      default:
-        print('Invalid user type: $userType');
-        return;
-    }
-
-    await _fcm.subscribeToTopic(topic);
-    print('Subscribed to topic: $topic');
-  }
-
   Future<String?> getFCMToken() async {
     return await _fcm.getToken();
+  }
+
+  Future<void> handleBackgroundMessage(RemoteMessage message) async {
+    print("================Background Message===================");
+    print("Title: ${message.notification?.title}");
+    print("Body: ${message.notification?.body}");
+    print("Data: ${message.data}");
+    print("================================================");
+  }
+
+  Future<void> displayLocalNotification(RemoteMessage message) async {
+    String title = message.notification?.title ?? 'New Notification';
+    String body = message.notification?.body ?? 'You have a new update!';
+    showSimpleNotification(
+      Text(title),
+      subtitle: Text(body),
+      background: Colors.blue.shade700,
+      duration: const Duration(seconds: 5),);
   }
 }

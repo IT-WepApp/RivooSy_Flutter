@@ -33,7 +33,8 @@ class AdminPanelApp extends StatelessWidget {
         '/adminHome': (context) => const AdminHomePage(),
         '/sellerHome': (context) => const SellerHomePage(),
         '/deliveryHome': (context) => const DeliveryHomePage(),
-        '/userHome': (context) => const UserHomePage(),
+        '/userHome': (context) => const UserHomePage()
       },
     );
   }
+}

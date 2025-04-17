@@ -9,13 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # الاعتماديات المشتركة:
-  shared_models:
-    path: ../shared_modules/shared_models
-  shared_services:
-    path: ../shared_modules/shared_services
-  shared_widgets:
-    path: ../shared_modules/shared_widgets
+  firebase_auth: ^4.14.0
+  cloud_firestore: ^4.13.8
+  shared_models: { path: ../shared_modules/shared_models }
+  shared_services: { path: ../shared_modules/shared_services }
+  shared_widgets: { path: ../shared_modules/shared_widgets }
+
 
 dev_dependencies:
   flutter_test:

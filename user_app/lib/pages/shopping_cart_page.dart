@@ -119,7 +119,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding = const EdgeInsets.all(16.0),
   }
 
   Future<void> _updateQuantity(CartItem item, int newQuantity) async {
