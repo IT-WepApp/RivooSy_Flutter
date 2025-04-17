@@ -20,6 +20,7 @@ class StoreService {
         );
       }).toList();
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching stores: $e');
       return []; // Return an empty list in case of error
     }

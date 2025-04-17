@@ -23,6 +23,7 @@ class CartService {
         );
       }).toList();
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching cart items: $e');
       return []; // Return an empty list in case of error
     }
@@ -43,6 +44,7 @@ class CartService {
         'price': cartItem.price,
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error adding item to cart: $e');
     }
   }
@@ -59,6 +61,7 @@ class CartService {
         'quantity': cartItem.quantity,
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error updating cart item: $e');
     }
   }
@@ -75,6 +78,7 @@ class CartService {
         'quantity': quantity,
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error updating cart item quantity: $e');
     }
   }
@@ -89,6 +93,7 @@ class CartService {
           .doc(productId)
           .delete();
     } catch (e) {
+      // ignore: avoid_print
       print('Error removing item from cart: $e');
     }
   }

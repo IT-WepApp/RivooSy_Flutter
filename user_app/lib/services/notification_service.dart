@@ -25,6 +25,7 @@ class NotificationService {
       sound: true,
     );
 
+    // ignore: avoid_print
     print('🛡️ حالة الإذن: ${settings.authorizationStatus}');
 
     const AndroidInitializationSettings initializationSettingsAndroid =
@@ -37,11 +38,13 @@ class NotificationService {
     await _localNotificationsPlugin.initialize(initializationSettings);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      // ignore: avoid_print
       print('📬 رسالة واردة أثناء تشغيل التطبيق: ${message.messageId}');
       showLocalNotification(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      // ignore: avoid_print
       print('📨 تم فتح التطبيق من إشعار: ${message.messageId}');
     });
   }
@@ -70,8 +73,10 @@ class NotificationService {
   Future<void> subscribeToTopic(String topic) async {
     try {
       await _messaging.subscribeToTopic(topic);
+      // ignore: avoid_print
       print('✅ تم الاشتراك في التوبيك: \$topic');
     } catch (e) {
+      // ignore: avoid_print
       print('❌ فشل الاشتراك في التوبيك: \$e');
     }
   }

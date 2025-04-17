@@ -49,16 +49,16 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
                       final item = widget.cartItems[index];
                       return ListTile(
                         title: Text(item.name),
-                        subtitle: Text('Quantity: \${item.quantity}, Price: \$\${item.price.toStringAsFixed(2)}'),
+                        subtitle: const Text('Quantity: \${item.quantity}, Price: \$\${item.price.toStringAsFixed(2)}'),
                       );
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
                   child: Text(
                     'Total: \$\${widget.totalPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 ElevatedButton(

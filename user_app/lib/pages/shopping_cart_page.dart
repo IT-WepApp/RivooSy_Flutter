@@ -45,7 +45,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: \${snapshot.error}'));
+            return const Center(child: Text('Error: \${snapshot.error}'));
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             final cartItems = snapshot.data!;
             final totalPrice = _calculateTotalPrice(cartItems);
@@ -60,11 +60,11 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
                   child: Text(
                     'Total: \$\${totalPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -94,7 +94,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
       margin: const EdgeInsets.all(8.0),
       child: ListTile(
         title: Text(item.name),
-        subtitle: Text('Quantity: \${item.quantity}'),
+        subtitle: const Text('Quantity: \${item.quantity}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -132,6 +132,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           _cartItemsFuture = _fetchCartItems();
         });
       } catch (e) {
+        // ignore: avoid_print
         print('Error updating quantity: \$e');
       }
     } else {
@@ -161,6 +162,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         _cartItemsFuture = _fetchCartItems();
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error removing item: \$e');
     }
   }

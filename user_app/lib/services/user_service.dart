@@ -12,6 +12,7 @@ class UserService {
         return 'user';
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching user type: \$e');
       return 'user';
     }

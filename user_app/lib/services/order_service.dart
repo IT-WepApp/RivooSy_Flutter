@@ -20,6 +20,7 @@ class OrderService {
         'totalPrice': totalPrice,
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error placing order: $e');
     }
   }
@@ -37,6 +38,7 @@ class OrderService {
             ...doc.data(),
           })).toList();
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching orders for user: $e');
       return [];
     }
@@ -53,6 +55,7 @@ class OrderService {
         return OrderModel.fromJson(data);
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching order details: $e');
     }
     return null;
