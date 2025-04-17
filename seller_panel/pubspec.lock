@@ -217,7 +217,7 @@ packages:
     source: hosted
     version: "2.1.8"
   shared_models:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "../shared_modules/shared_models"
       relative: true
@@ -231,7 +231,7 @@ packages:
     source: path
     version: "1.0.0"
   shared_widgets:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "../shared_modules/shared_widgets"
       relative: true
