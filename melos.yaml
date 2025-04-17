@@ -1,0 +1,37 @@
+name: flutter_project
+
+packages:
+  - 'shared_modules/shared_models'
+  - 'shared_modules/shared_services'
+  - 'shared_modules/shared_widgets'
+  - 'admin_panel'
+  - 'delivery_app'
+  - 'seller_panel'
+  - 'user_app'
+
+command:
+  bootstrap:
+    # Run `flutter pub get` in all packages and apps.
+    run: melos exec -- "flutter pub get"
+
+  test:
+    # Run tests in all Flutter packages.
+    run: melos exec --dir-exists="test" -- "flutter test"
+
+  analyze:
+    # Run static analysis in all packages.
+    run: melos exec -- "flutter analyze ."
+
+  format:
+    # Format code in all packages.
+    run: melos exec -- "dart format ."
+
+  upgrade:
+    # Upgrade dependencies in all packages.
+    run: melos exec -- "flutter pub upgrade"
+
+  clean:
+    # Clean build artifacts in all Flutter packages and apps.
+    run: melos exec -- "flutter clean"
+
+  # Add more commands as needed for your project.

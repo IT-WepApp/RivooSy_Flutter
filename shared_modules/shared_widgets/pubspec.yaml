@@ -8,7 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-shared_models: { path: ../shared_modules/shared_models }
-shared_services: { path: ../shared_modules/shared_services }
-shared_widgets: { path: ../shared_modules/shared_widgets }
+  shared_models: { path: /Users/builder/dev/food-delivery-system/shared_modules/shared_models }
+  shared_services: { path: /Users/builder/dev/food-delivery-system/shared_modules/shared_services }
+  shared_widgets: { path: /Users/builder/dev/food-delivery-system/shared_modules/shared_widgets }
 

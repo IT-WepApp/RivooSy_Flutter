@@ -16,22 +16,20 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _login() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          final uid = user.uid;
-          final userData = await UserService().getUser(uid); // ✅ تم التعديل هنا
-
-          if (userData != null && userData.role == 'admin') {
-            Navigator.pushReplacementNamed(context, '/adminHome');
-          } else {
-            _showErrorSnackBar('Unauthorized: Admins only.');
-            await FirebaseAuth.instance.signOut();
+    if (_formKey.currentState!.validate()) { // تحقق من صحة النموذج
+      try { // ابدأ محاولة تسجيل الدخول
+        await FirebaseAuth.instance.signInWithEmailAndPassword( // حاول تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim());
+        final user = FirebaseAuth.instance.currentUser; // احصل على المستخدم الحالي
+        if (user != null) { // إذا كان هناك مستخدم مسجل الدخول
+          final uid = user.uid; // احصل على معرف المستخدم
+          final userData = await UserService().getUser(uid); // احصل على بيانات المستخدم من خدمة المستخدم
+          if (userData != null && userData.role == 'admin') { // إذا كانت بيانات المستخدم موجودة والدور هو 'admin'
+            Navigator.pushReplacementNamed(context, '/adminHome'); // انتقل إلى الصفحة الرئيسية للمشرف
+          } else { // إذا لم يكن لديه الصلاحيات
+            _showErrorSnackBar('Unauthorized: Admins only.'); // اعرض رسالة خطأ
+            await FirebaseAuth.instance.signOut(); // قم بتسجيل خروج المستخدم
           }
         } else {
           _showErrorSnackBar('Authentication error.');
@@ -100,7 +98,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                   hintText: "Enter your admin email",
                   prefixIcon: Icon(Icons.email, color: Colors.blue.shade400),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10), // حدود الحقل دائرية
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
