@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/seller_home_page.dart';
+import 'package:seller_panel/pages/seller_login_page.dart';
 
 void main() {
   runApp(const SellerPanelApp());
@@ -15,7 +16,10 @@ class SellerPanelApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: const SellerHomePage(),
+      home: const SellerLoginPage(),
+      routes: {
+        '/sellerHome': (context) => const SellerHomePage(),
+      },
     );
   }
 }

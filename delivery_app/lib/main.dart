@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/delivery_home_page.dart';
+import 'package:delivery_app/pages/delivery_login_page.dart';
 
 void main() {
   runApp(const DeliveryApp());
@@ -15,7 +16,11 @@ class DeliveryApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: const DeliveryHomePage(),
+      home: const DeliveryLoginPage(),
+      routes: {
+        '/deliveryHome': (context) => const DeliveryHomePage(),
+      },
     );
   }
+}
 }

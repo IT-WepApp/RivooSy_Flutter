@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 // استيراد صفحة البداية من الحزمة المشتركة
 import 'package:shared_widgets/home_choice_page.dart';
+import 'pages/admin_login_page.dart';
+import 'pages/seller_login_page.dart';
+import 'pages/delivery_login_page.dart';
+import 'pages/admin_home_page.dart';
+import 'pages/seller_home_page.dart';
+import 'pages/delivery_home_page.dart';
+import 'pages/user_home_page.dart';
+import 'pages/user_login_page.dart';
+
 
 void main() {
   runApp(const AdminPanelApp());
@@ -21,41 +30,10 @@ class AdminPanelApp extends StatelessWidget {
         '/sellerLogin': (context) => const SellerLoginPage(),
         '/deliveryLogin': (context) => const DeliveryLoginPage(),
         '/userLogin': (context) => const UserLoginPage(),
+        '/adminHome': (context) => const AdminHomePage(),
+        '/sellerHome': (context) => const SellerHomePage(),
+        '/deliveryHome': (context) => const DeliveryHomePage(),
+        '/userHome': (context) => const UserHomePage(),
       },
     );
   }
-}
-
-// صفحات تسجيل دخول مؤقتة لحتى تنشئ الملفات الحقيقية لاحقاً
-
-class AdminLoginPage extends StatelessWidget {
-  const AdminLoginPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('تسجيل دخول المشرف')));
-  }
-}
-
-class SellerLoginPage extends StatelessWidget {
-  const SellerLoginPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('تسجيل دخول البائع')));
-  }
-}
-
-class DeliveryLoginPage extends StatelessWidget {
-  const DeliveryLoginPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('تسجيل دخول المندوب')));
-  }
-}
-
-class UserLoginPage extends StatelessWidget {
-  const UserLoginPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('تسجيل دخول المستخدم')));
-  }
-}
