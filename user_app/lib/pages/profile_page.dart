@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_services/user_service.dart'; // ✅
+import 'package:shared_services/user_service.dart';
+import 'package:shared_models/shared_models.dart'; // نموذج المستخدم
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,69 +15,39 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
-      body: Container(
+      body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildUserInfo(context),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _signOut,
-              child: const Text('Sign Out'),
-            ),
-          ],
-        ),
+        child: _buildUserInfo(),
       ),
     );
   }
 
-  Widget _buildUserInfo(BuildContext context) {
-    final authUser = FirebaseAuth.instance.currentUser;
-    if (authUser != null) {
-      return FutureBuilder(
-        future: UserService().getUser(authUser.uid),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text('Error: \${snapshot.error}');
-          } else if (snapshot.hasData) {
-            final user = snapshot.data!;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Name: \${user.name}',
-                  style: const TextStyle(fontSize: 18),
-                ),
-                Text(
-                  'Email: \${user.email}',
-                  style: const TextStyle(fontSize: 18),
-                ),
-              ],
-            );
-          } else {
-            return const Text('User data not found.');
-          }
-        },
-      );
-    } else {
-      return const Text('No authenticated user.');
+  Widget _buildUserInfo() {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) {
+      return const Center(child: Text('No authenticated user.'));
     }
-  }
 
-  Future<void> _signOut() async {
-    try {
-      await FirebaseAuth.instance.signOut();
-      if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User signed out!')),
+    return FutureBuilder<UserModel?>(
+      future: UserService().getUser(firebaseUser.uid),
+      builder: (context, AsyncSnapshot<UserModel?> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data == null) {
+          return const Text('User data not found.');
+        }
+
+        final userModel = snapshot.data!;  // الآن يُستخدم المتغير
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Name: ${userModel.name}', style: const TextStyle(fontSize: 18)),
+            Text('Email: ${userModel.email}', style: const TextStyle(fontSize: 18)),
+          ],
         );
-      }
-    } catch (e) {
-      print('Error signing out: \$e');
-    }
+      },
+    );
   }
 }

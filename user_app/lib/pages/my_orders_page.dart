@@ -25,9 +25,8 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
       return _orderService.getOrdersForUser(userId);
-    } else {
-      return [];
     }
+    return [];
   }
 
   @override
@@ -41,17 +40,19 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: \${snapshot.error}'));
-          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            final orders = snapshot.data!;
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          final orders = snapshot.data;
+          if (orders != null && orders.isNotEmpty) {
             return ListView.builder(
               itemCount: orders.length,
               itemBuilder: (context, index) {
                 final order = orders[index];
-                final orderDate = order.createdAt.toDate(); // ✅
+                final orderDate = order.createdAt.toDate();
                 final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(orderDate);
-                final totalPrice = order.total; // ✅
+                final totalPrice = order.total;
 
                 return InkWell(
                   onTap: () {
@@ -64,16 +65,15 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                   child: Card(
                     margin: const EdgeInsets.all(8.0),
                     child: ListTile(
-                      title: Text('Order Date: \$formattedDate'),
-                      subtitle: Text('Total: \$\${totalPrice.toStringAsFixed(2)}'),
+                      title: Text('Order Date: $formattedDate'),
+                      subtitle: Text('Total: \$${totalPrice.toStringAsFixed(2)}'),
                     ),
                   ),
                 );
               },
             );
-          } else {
-            return const Center(child: Text('You have no orders yet.'));
           }
+          return const Center(child: Text('You have no orders yet.'));
         },
       ),
     );

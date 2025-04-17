@@ -1,16 +1,12 @@
-name: shared_models
-description: نماذج بيانات مشتركة بين التطبيقات.
-version: 1.0.0
+ name: shared_models
+ description: نماذج بيانات مشتركة بين التطبيقات.
+ version: 1.0.0
 
-environment:
-  sdk: ">=2.17.0 <3.0.0"
+ environment:
+   sdk: ">=2.17.0 <3.0.0"
 
-dependencies:
-  flutter:
-    sdk: flutter
-  cloud_firestore: ^4.13.1
-
-# Assuming project root is the parent of shared_modules, adjust paths accordingly if different
-# shared_models: { path: /Users/hamza.shaban/code-execution/tmpzguxx749/shared_modules/shared_models }
-# shared_services: { path: /Users/hamza.shaban/code-execution/tmpzguxx749/shared_modules/shared_services }
-# shared_widgets: { path: /Users/hamza.shaban/code-execution/tmpzguxx749/shared_modules/shared_widgets }
+ dependencies:
+   flutter:
+     sdk: flutter
+-  cloud_firestore: ^4.13.1
++  cloud_firestore: ^5.6.6

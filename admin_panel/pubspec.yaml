@@ -9,22 +9,25 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   shared_models:
-    path: /Users/builder/dev/food-delivery-system/shared_modules/shared_models
+    path: ../shared_modules/shared_models
+
   shared_services:
-    path: /Users/builder/dev/food-delivery-system/shared_modules/shared_services
+    path: ../shared_modules/shared_services
+
   shared_widgets:
-    path: /Users/builder/dev/food-delivery-system/shared_modules/shared_widgets
+    path: ../shared_modules/shared_widgets
+
   firebase_auth: ^5.5.2
-
-
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_lints: ^2.0.0
+
 flutter:
   uses-material-design: true
-  # تأكد من وجود المجلدات المطلوبة أو قم بتعليقها إذا لم تستخدمها حالياً.
   # assets:
   #   - assets/images/

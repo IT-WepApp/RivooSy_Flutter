@@ -13,7 +13,6 @@ import 'package:user_app/services/user_service.dart';
 import 'firebase_options.dart';
 import 'package:user_app/pages/order_details_page.dart';
 
-
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   NotificationService.showLocalNotification(message);
@@ -58,14 +57,15 @@ class _LoginPageState extends State<LoginPage> {
       badge: true,
       sound: true,
     );
-    print('User granted permission: \${settings.authorizationStatus}');
+    // استخدم interpolation الصحيحة هنا
+    print('User granted permission: ${settings.authorizationStatus}');
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       NotificationService.showLocalNotification(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Message opened from notification: \${message.data}');
+      print('Message opened from notification: ${message.data}');
     });
   }
 
@@ -89,9 +89,9 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> getDeviceToken() async {
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
-      print("FCM Token: \$fcmToken");
+      print("FCM Token: $fcmToken");
     } catch (e) {
-      print("Error getting FCM token: \$e");
+      print("Error getting FCM token: $e");
     }
   }
 
@@ -115,24 +115,32 @@ class _LoginPageState extends State<LoginPage> {
       } on FirebaseAuthException catch (e) {
         _handleAuthError(e);
       } catch (e) {
-        _showErrorSnackBar('حدث خطأ: \${e.toString()}');
+        // صححنا interpolation هنا أيضاً
+        _showErrorSnackBar('حدث خطأ: ${e.toString()}');
       }
     }
   }
 
   String _encrypt(String text) {
-    return text.split('').map((char) => String.fromCharCode(char.codeUnitAt(0) + 3)).join();
+    return text
+        .split('')
+        .map((char) => String.fromCharCode(char.codeUnitAt(0) + 3))
+        .join();
   }
 
   String _decrypt(String text) {
-    return text.split('').map((char) => String.fromCharCode(char.codeUnitAt(0) - 3)).join();
+    return text
+        .split('')
+        .map((char) => String.fromCharCode(char.codeUnitAt(0) - 3))
+        .join();
   }
 
   Future<void> _saveCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
       await prefs.setString('email', _emailController.text.trim());
-      await prefs.setString('password', _encrypt(_passwordController.text.trim()));
+      await prefs.setString(
+          'password', _encrypt(_passwordController.text.trim()));
       await prefs.setBool('rememberMe', true);
     } else {
       await prefs.clear();
@@ -146,7 +154,8 @@ class _LoginPageState extends State<LoginPage> {
     } else if (e.code == 'wrong-password') {
       errorMessage = 'كلمة المرور غير صحيحة';
     } else {
-      errorMessage = 'حدث خطأ: \${e.message}';
+      // صححنا interpolation هنا أيضاً
+      errorMessage = 'حدث خطأ: ${e.message}';
     }
     _showErrorSnackBar(errorMessage);
   }
@@ -202,7 +211,8 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
+                    borderSide:
+                        BorderSide(color: Colors.blue.shade700, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -228,7 +238,8 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
+                    borderSide:
+                        BorderSide(color: Colors.blue.shade700, width: 2),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -261,7 +272,8 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue.shade700,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   textStyle: const TextStyle(fontSize: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -313,7 +325,8 @@ class MyApp extends StatelessWidget {
   }
 
   static Widget _orderConfirmationRoute(BuildContext context) {
-    final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final arguments =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return OrderConfirmationPage(
       cartItems: arguments['cartItems'],
       totalPrice: arguments['totalPrice'],
@@ -330,13 +343,15 @@ class AuthCheck extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
-          User? user = snapshot.data;
+          final user = snapshot.data;
           if (user == null) {
             return const LoginPage();
           }
           return const HomePageWrapper();
         }
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
       },
     );
   }

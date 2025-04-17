@@ -34,13 +34,14 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
       return;
     }
 
+    // parse price as double (product.price is always String)
+    final price = double.tryParse(product.price) ?? 0.0;
+
     final cartItem = CartItem(
       productId: product.id,
       name: product.name,
       quantity: 1,
-      price: (product.price is String)
-          ? double.tryParse(product.price) ?? 0.0
-          : (product.price as num).toDouble(),
+      price: price,
     );
 
     try {
@@ -49,9 +50,9 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
         const SnackBar(content: Text('Added to cart!')),
       );
     } catch (e) {
-      print("Error adding to cart: \$e");
+      print("Error adding to cart: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add to cart: \$e')),
+        SnackBar(content: Text('Failed to add to cart: $e')),
       );
     }
   }
@@ -78,9 +79,9 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: \${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
-          if (!snapshot.hasData || snapshot.data == null) {
+          if (!snapshot.hasData) {
             return const Center(child: Text('Store details not found'));
           }
 
@@ -134,15 +135,15 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
                   delegate: SliverChildBuilderDelegate(
                     (BuildContext context, int index) {
                       final product = products[index];
+                      // parse price once
+                      final price = double.tryParse(product.price) ?? 0.0;
                       return Card(
                         child: ListTile(
                           leading: product.imageUrl.isNotEmpty
                               ? Image.network(product.imageUrl, width: 50, height: 50, fit: BoxFit.cover)
                               : null,
                           title: Text(product.name),
-                          subtitle: Text(
-                            'Price: \$${(product.price is String ? double.tryParse(product.price)?.toStringAsFixed(2) : (product.price as num).toStringAsFixed(2)) ?? '0.00'}',
-                          ),
+                          subtitle: Text('Price: \$${price.toStringAsFixed(2)}'),
                           trailing: ElevatedButton(
                             onPressed: () => _addToCart(product),
                             child: const Text('Add to Cart'),
