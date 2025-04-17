@@ -14,8 +14,6 @@ dependencies:
   firebase_messaging: ^14.0.0 # تقريبي، تحقق من أحدث إصدار على pub.dev
   overlay_support: ^2.0.0 # تقريبي، تحقق من أحدث إصدار على pub.dev
   shared_preferences: ^2.0.0 # تقريبي، تحقق من أحدث إصدار على pub.dev
-  flutter:
-    sdk: flutter
   shared_models:
     path: ../shared_modules/shared_models
   shared_services:

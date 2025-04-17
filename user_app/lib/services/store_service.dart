@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:user_app/models/store_model.dart'; // Assuming this model exists
 
 class StoreService {

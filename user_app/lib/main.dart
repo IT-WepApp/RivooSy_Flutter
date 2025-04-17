@@ -12,7 +12,6 @@ import 'package:user_app/utils/route_constants.dart';
 import 'package:user_app/services/notification_service.dart';
 import 'package:user_app/widgets/home_page_wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:user_app/services/user_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -22,8 +21,6 @@ Future<void> main() async {
   );
   runApp(const MyApp());
 }
-
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -44,60 +41,62 @@ class _LoginPageState extends State<LoginPage> {
     _loadCredentials();
   }
 
-Future<void> _loadCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('email') ?? '';
-    final password = prefs.getString('password') ?? '';
-    final rememberMe = prefs.getBool('rememberMe') ?? false;
+  Future<void> _loadCredentials() async {
+      final prefs = await SharedPreferences.getInstance();
+      final email = prefs.getString('email') ?? '';
+      final password = prefs.getString('password') ?? '';
+      final rememberMe = prefs.getBool('rememberMe') ?? false;
 
-    setState(() {
-      _emailController.text = email;
-      _passwordController.text = password;
-      _rememberMe = rememberMe;
-    });
+      setState(() {
+        _emailController.text = email;
+        _passwordController.text = password;
+        _rememberMe = rememberMe;
+      });
 
-    if (_rememberMe && email.isNotEmpty && password.isNotEmpty) {
-      _login(email: email, password: _decrypt(password));
-    }
-  }
-
-Future<void> _login({String? email, String? password}) async {
-    if (_formKey.currentState?.validate() ?? true) {
-      try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email ?? _emailController.text.trim(),
-          password: password ?? _passwordController.text.trim(),
-        );
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          final userService = UserService();
-          final userType = await userService.getUserTypeFromDatabase(user.uid);
-          await _saveUserType(userType);
-          await NotificationService().subscribeToTopic(userType);
-          _saveCredentials();
-        }
-      } on FirebaseAuthException catch (e) {
-        _handleAuthError(e);
-
-      } catch (e) {
-        _showErrorSnackBar('حدث خطأ: ${e.toString()}');
+      if (_rememberMe && email.isNotEmpty && password.isNotEmpty) {
+        _login(email: email, password: _decrypt(password));
       }
-    }
   }
 
-String _encrypt(String text) {
-  return text.split('').map((char) {
-    final code = char.codeUnitAt(0);
-    return String.fromCharCode(code + 3);
-  }).join();
-}
+  Future<void> _login({String? email, String? password}) async {
+      if (_formKey.currentState?.validate() ?? true) {
+        try {
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: email ?? _emailController.text.trim(),
+            password: password ?? _passwordController.text.trim(),
+          );
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            final userService = UserService();
+            final userType = await userService.getUserTypeFromDatabase(user.uid);
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('userType', userType);
 
-String _decrypt(String text) {
-  return text.split('').map((char) {
-    final code = char.codeUnitAt(0);
-    return String.fromCharCode(code - 3);
-  }).join();
-}
+            await NotificationService().subscribeToTopic(userType);
+            _saveCredentials();
+          }
+        } on FirebaseAuthException catch (e) {
+          _handleAuthError(e);
+
+        } catch (e) {
+          _showErrorSnackBar('حدث خطأ: ${e.toString()}');
+        }
+      }
+  }
+
+  String _encrypt(String text) {
+    return text.split('').map((char) {
+      final code = char.codeUnitAt(0);
+      return String.fromCharCode(code + 3);
+    }).join();
+  }
+
+  String _decrypt(String text) {
+    return text.split('').map((char) {
+      final code = char.codeUnitAt(0);
+      return String.fromCharCode(code - 3);
+    }).join();
+  }
 
 Future<void> _saveCredentials() async {
     final prefs = await SharedPreferences.getInstance();
@@ -109,14 +108,10 @@ Future<void> _saveCredentials() async {
       await prefs.clear();
     }
   }
-
-Future<void> _saveUserType(String userType) async {
-  }
-  Future<void> _saveUserType(String userType) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userType', userType);
-  }
   void _handleAuthError(FirebaseAuthException e) {
+
+    if (e.code == 'user-not-found') {
+
     String errorMessage;
     if (e.code == 'user-not-found') {
 
@@ -128,12 +123,11 @@ Future<void> _saveUserType(String userType) async {
     }
     _showErrorSnackBar(errorMessage);
   }
-      }
-    }
-  }
+}
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
+
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
@@ -263,18 +257,11 @@ Future<void> _saveUserType(String userType) async {
     );
 }
 
-Future<String> getUserTypeFromDatabase(String uid) async {
-  // Replace with actual user type retrieval logic
-  return 'user';
-}
+import 'package:user_app/services/user_service.dart';
 
-
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
 
-class _MyAppState extends State<MyApp> {\
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -283,48 +270,48 @@ class _MyAppState extends State<MyApp> {\
         primarySwatch: Colors.blue,
       ),
       initialRoute: RouteConstants.home,
-      routes: {\
-        RouteConstants.home: (context) => AuthCheck(),
+      routes: {
+        RouteConstants.home: (context) => const AuthCheck(),
         // RouteConstants.home: (context) => const HomePageWrapper(), // Wrapper for BottomNavigationBar
-        RouteConstants.storeDetails: (context) {\
-          final storeId = ModalRoute.of(context)!.settings.arguments as String;\
-          return StoreDetailsPage(storeId: storeId);\
-        },\
-        RouteConstants.myOrders: (context) => const MyOrdersPage(),\
-        RouteConstants.orderDetails: (context) {\
-          final orderId = ModalRoute.of(context)!.settings.arguments as String;\
-          return OrderDetailsPage(orderId: orderId);\
-        },\
-        RouteConstants.login: (context) => const LoginPage(),
-        RouteConstants.orderConfirmation: (context) {\
-          final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;\
-          return OrderConfirmationPage(\
-            cartItems: arguments['cartItems'],\
-            totalPrice: arguments['totalPrice'],\
-          );\
-        },\
-      },\
+          RouteConstants.storeDetails: (context) {
+            final storeId = ModalRoute.of(context)!.settings.arguments as String;
+            return StoreDetailsPage(storeId: storeId);
+          },
+          RouteConstants.myOrders: (context) => const MyOrdersPage(),
+          RouteConstants.orderDetails: (context) {
+            final orderId = ModalRoute.of(context)!.settings.arguments as String;
+            return OrderDetailsPage(orderId: orderId);
+          },
+          RouteConstants.login: (context) => const LoginPage(),
+          RouteConstants.orderConfirmation: (context) {
+            final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+            return OrderConfirmationPage(
+              cartItems: arguments['cartItems'],
+              totalPrice: arguments['totalPrice'],
+            );
+          },
+      },
     );
-  }\
-
+  }
 }
 
+class AuthCheck extends StatelessWidget {
+  const AuthCheck({super.key});
 
-class AuthCheck extends StatelessWidget {\
   @override
-  Widget build(BuildContext context) {\
-    return StreamBuilder<User?>(\
-      stream: FirebaseAuth.instance.authStateChanges(),\
-      builder: (context, snapshot) {\
-        if (snapshot.connectionState == ConnectionState.active) {\
-          User? user = snapshot.data;\
-          if (user == null) {\
-            return const LoginPage();\
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          User? user = snapshot.data;
+          if (user == null) {
+            return const LoginPage();
           }
           return const HomePageWrapper();
-        }\
-        return const Scaffold(body: Center(child: CircularProgressIndicator())); // Show a loading indicator while waiting
-      },\
+        }
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      },
     );
-  }\
+  }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 // Assuming these models and services exist:
 // import 'package:user_app/models/store_model.dart';
 import 'package:user_app/models/product_model.dart';

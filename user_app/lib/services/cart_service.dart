@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:user_app/models/cart_item_model.dart'; // Assuming this model exists
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CartService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
