@@ -14,8 +14,7 @@ dependencies:
   firebase_messaging: ^14.0.0
   overlay_support: ^2.0.0
   shared_preferences: ^2.0.0
-  shared_models:
-    path: ../shared_modules/shared_models
+  shared_models: { path: /Users/builder/dev/food-delivery-system/shared_modules/shared_models }
   shared_services:
     path: ../shared_modules/shared_services
   shared_widgets:

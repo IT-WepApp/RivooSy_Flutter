@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_modules/shared_services.dart';
+import 'package:shared_modules/shared_services/lib/user_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});

@@ -9,10 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_auth: ^4.14.0
-  cloud_firestore: ^4.13.8
-  shared_modules:
-  path: ../shared_modules
+  shared_models:
+    path: /Users/builder/dev/food-delivery-system/shared_modules/shared_models
+  shared_services:
+    path: /Users/builder/dev/food-delivery-system/shared_modules/shared_services
+  shared_widgets:
+    path: /Users/builder/dev/food-delivery-system/shared_modules/shared_widgets
 
 
 

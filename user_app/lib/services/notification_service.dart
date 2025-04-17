@@ -1,61 +1,50 @@
+// notification_service.dart
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:shared_modules/shared_services.dart';
-import 'package:overlay_support/overlay_support.dart';
 
-const String userTypeKey = 'userType';
-
-class NotificationService {
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-
-  Future<void> initialize() async {
-    await _requestPermissions();
-    FirebaseMessaging.onMessage.listen(_handleIncomingMessage);
+/// دالة لمعالجة الرسائل الواردة عندما يكون التطبيق في الخلفية أو مغلقًا.
+/// يجب أن تكون دالة عليا (ليست داخل أي كلاس) ومُشروحة بـ @pragma('vm:entry-point')
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // تهيئة Firebase إذا لم تكن مهيأة بالفعل
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp();
   }
 
-  Future<void> _requestPermissions() async {
-    NotificationSettings settings = await _fcm.requestPermission(
+  // منطق التعامل مع الرسالة
+  print("📩 تم استلام رسالة في الخلفية: ${message.messageId}");
+
+  // يمكنك هنا تنفيذ منطق إضافي مثل:
+  // - عرض إشعار محلي باستخدام flutter_local_notifications
+  // - حفظ البيانات في قاعدة بيانات محلية
+  // - إرسال تقارير أو تسجيلات
+}
+
+// 👇 الأكواد الحالية في الملف (احتفظ بها كما هي)
+class NotificationService {
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+
+  Future<void> initialize() async {
+    // طلب أذونات الإشعارات
+    NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
-      announcement: false,
       badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
       sound: true,
     );
 
-    if(settings.authorizationStatus == AuthorizationStatus.authorized){
-    print('User granted permission: ${settings.authorizationStatus}');
+    print('🛡️ حالة الإذن: ${settings.authorizationStatus}');
+
+    // الاستماع للرسائل أثناء تشغيل التطبيق
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('📬 رسالة واردة أثناء تشغيل التطبيق: ${message.messageId}');
+      // منطق التعامل مع الرسالة أثناء التشغيل
+    });
+
+    // التعامل مع الرسائل عند فتح التطبيق من إشعار
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('📨 تم فتح التطبيق من إشعار: ${message.messageId}');
+      // منطق التنقل أو التحديث
+    });
   }
-
-  void _handleIncomingMessage(RemoteMessage message) async {
-    String title = message.notification?.title ?? 'New Notification';
-    String body = message.notification?.body ?? 'You have a new update!';
-
-    showSimpleNotification(
-      Text(title),
-      subtitle: Text(body),
-      background: Colors.blue.shade700,
-      duration: const Duration(seconds: 5),
-    );
-  }
-
-  Future<String?> getFCMToken() async {
-    return await _fcm.getToken();
-  }
-
-  
-  }
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
-
-  print("================Background Message===================");
-  print("Title: ${message.notification?.title}");
-  print("Body: ${message.notification?.body}");
-  print("Data: ${message.data}");
-  print("================================================");
-}
 }

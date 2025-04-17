@@ -5,7 +5,6 @@ import 'package:user_app/pages/user_home_page.dart';
 import 'package:user_app/pages/store_details_page.dart';
 import 'package:user_app/utils/route_constants.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:user_app/services/notification_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:user_app/pages/shopping_cart_page.dart';
 import 'package:user_app/pages/my_orders_page.dart';
@@ -14,7 +13,7 @@ import 'package:user_app/pages/order_confirmation_page.dart';
 import 'package:user_app/utils/route_constants.dart';
 import 'package:user_app/services/notification_service.dart';
 import 'package:user_app/widgets/home_page_wrapper.dart';
-
+import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -310,33 +309,52 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'تطبيق المستخدم',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blue,  
       ),
       initialRoute: RouteConstants.home,
       routes: {
         RouteConstants.home: (context) => const AuthCheck(),
         // RouteConstants.home: (context) => const HomePageWrapper(), // Wrapper for BottomNavigationBar
-          RouteConstants.storeDetails: (context) {
-            final storeId = ModalRoute.of(context)!.settings.arguments as String;
-            return StoreDetailsPage(storeId: storeId);
-          },
-          RouteConstants.myOrders: (context) => const MyOrdersPage(),
-          RouteConstants.orderDetails: (context) {
-            final orderId = ModalRoute.of(context)!.settings.arguments as String;
-            return OrderDetailsPage(orderId: orderId);
-          },
-          RouteConstants.login: (context) => const LoginPage(),
-          RouteConstants.orderConfirmation: (context) {
-            final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-            return OrderConfirmationPage(
-              cartItems: arguments['cartItems'],
-              totalPrice: arguments['totalPrice'],
-            );
-          },
+        RouteConstants.storeDetails: _storeDetailsRoute,
+        RouteConstants.myOrders: (context) => const MyOrdersPage(),
+        RouteConstants.orderDetails: _orderDetailsRoute,
+        RouteConstants.login: (context) => const LoginPage(),
+        RouteConstants.orderConfirmation: _orderConfirmationRoute,
       },
     );
   }
+
+  static const _storeDetailsRoute = StoreDetailsRoute.build;
+  static const _orderDetailsRoute = OrderDetailsRoute.build;
+  static const _orderConfirmationRoute = OrderConfirmationRoute.build;
 }
+
+class StoreDetailsRoute {
+  static StoreDetailsPage build(BuildContext context) {
+    final storeId = ModalRoute.of(context)!.settings.arguments as String;
+    return StoreDetailsPage(storeId: storeId);
+  }
+}
+
+class OrderDetailsRoute {
+  static OrderDetailsPage build(BuildContext context) {
+    final orderId = ModalRoute.of(context)!.settings.arguments as String;
+    return OrderDetailsPage(orderId: orderId);
+  }
+}
+
+class OrderConfirmationRoute {
+  static OrderConfirmationPage build(BuildContext context) {
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    return OrderConfirmationPage(
+      cartItems: arguments['cartItems'],
+      totalPrice: arguments['totalPrice'],
+    );
+  }
+}
+
+
+
 
 class AuthCheck extends StatelessWidget {
   const AuthCheck({super.key});
