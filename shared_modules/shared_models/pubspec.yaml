@@ -8,6 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cloud_firestore: ^4.13.1
+
 # Assuming project root is the parent of shared_modules, adjust paths accordingly if different
 # shared_models: { path: /Users/hamza.shaban/code-execution/tmpzguxx749/shared_modules/shared_models }
 # shared_services: { path: /Users/hamza.shaban/code-execution/tmpzguxx749/shared_modules/shared_services }

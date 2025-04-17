@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:user_app/lib/models/cart_item_model.dart'; // Assuming this model exists
+import 'package:user_app/models/cart_item_model.dart'; // Assuming this model exists
 
 class CartService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -63,6 +63,22 @@ class CartService {
     }
   }
 
+  /// Updates the quantity of a cart item using productId and quantity directly.
+  Future<void> updateCartItemQuantity(String userId, String productId, int quantity) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('cart')
+          .doc(productId)
+          .update({
+        'quantity': quantity,
+      });
+    } catch (e) {
+      print('Error updating cart item quantity: $e');
+    }
+  }
+
   /// Removes a CartItem from the user's cart.
   Future<void> removeFromCart(String userId, String productId) async {
     try {
@@ -75,5 +91,10 @@ class CartService {
     } catch (e) {
       print('Error removing item from cart: $e');
     }
+  }
+
+  /// Alias method for removeFromCart
+  Future<void> removeCartItem(String userId, String productId) async {
+    return removeFromCart(userId, productId);
   }
 }

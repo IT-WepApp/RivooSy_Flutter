@@ -12,3 +12,4 @@ dependencies:
     path: ../shared_models
   shared_widgets: 
     path: ../shared_widgets
+  cloud_firestore: ^4.13.1

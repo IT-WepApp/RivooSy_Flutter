@@ -2,31 +2,23 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-/// دالة لمعالجة الرسائل الواردة عندما يكون التطبيق في الخلفية أو مغلقًا.
-/// يجب أن تكون دالة عليا (ليست داخل أي كلاس) ومُشروحة بـ @pragma('vm:entry-point')
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // تهيئة Firebase إذا لم تكن مهيأة بالفعل
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp();
   }
-
-  // منطق التعامل مع الرسالة
-  print("📩 تم استلام رسالة في الخلفية: ${message.messageId}");
-
-  // يمكنك هنا تنفيذ منطق إضافي مثل:
-  // - عرض إشعار محلي باستخدام flutter_local_notifications
-  // - حفظ البيانات في قاعدة بيانات محلية
-  // - إرسال تقارير أو تسجيلات
+  NotificationService.showLocalNotification(message);
 }
 
-// 👇 الأكواد الحالية في الملف (احتفظ بها كما هي)
 class NotificationService {
+  static final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<void> initialize() async {
-    // طلب أذونات الإشعارات
     NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
       badge: true,
@@ -35,16 +27,52 @@ class NotificationService {
 
     print('🛡️ حالة الإذن: ${settings.authorizationStatus}');
 
-    // الاستماع للرسائل أثناء تشغيل التطبيق
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+
+    await _localNotificationsPlugin.initialize(initializationSettings);
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('📬 رسالة واردة أثناء تشغيل التطبيق: ${message.messageId}');
-      // منطق التعامل مع الرسالة أثناء التشغيل
+      showLocalNotification(message);
     });
 
-    // التعامل مع الرسائل عند فتح التطبيق من إشعار
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('📨 تم فتح التطبيق من إشعار: ${message.messageId}');
-      // منطق التنقل أو التحديث
     });
+  }
+
+  static void showLocalNotification(RemoteMessage message) {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'default_channel_id',
+      'Default Channel',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: true,
+    );
+
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    _localNotificationsPlugin.show(
+      message.hashCode,
+      message.notification?.title ?? 'إشعار',
+      message.notification?.body ?? '',
+      platformChannelSpecifics,
+    );
+  }
+
+  Future<void> subscribeToTopic(String topic) async {
+    try {
+      await _messaging.subscribeToTopic(topic);
+      print('✅ تم الاشتراك في التوبيك: \$topic');
+    } catch (e) {
+      print('❌ فشل الاشتراك في التوبيك: \$e');
+    }
   }
 }

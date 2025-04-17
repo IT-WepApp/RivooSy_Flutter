@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:user_app/services/order_service.dart';
+import 'package:shared_models/order_model.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MyOrdersPage extends StatefulWidget{
+class MyOrdersPage extends StatefulWidget {
   const MyOrdersPage({super.key});
 
   @override
@@ -13,7 +14,7 @@ class MyOrdersPage extends StatefulWidget{
 
 class _MyOrdersPageState extends State<MyOrdersPage> {
   final OrderService _orderService = OrderService();
-  late Future<List<Map<String, dynamic>>> _ordersFuture;
+  late Future<List<OrderModel>> _ordersFuture;
 
   @override
   void initState() {
@@ -21,13 +22,12 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     _ordersFuture = _fetchOrders();
   }
 
-  Future<List<Map<String, dynamic>>> _fetchOrders() async {
+  Future<List<OrderModel>> _fetchOrders() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId != null) {
       return _orderService.getOrdersForUser(userId);
     } else {
-      // Handle case where user is not logged in (e.g., redirect to login)
-      return []; // Or throw an exception
+      return [];
     }
   }
 
@@ -37,38 +37,36 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
       appBar: AppBar(
         title: const Text('My Orders'),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<OrderModel>>(
         future: _ordersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: \${snapshot.error}'));
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             final orders = snapshot.data!;
             return ListView.builder(
               itemCount: orders.length,
               itemBuilder: (context, index) {
                 final order = orders[index];
-                final orderDate = (order['orderDate'] as Timestamp).toDate();
-                final formattedDate =
-                    DateFormat('yyyy-MM-dd HH:mm').format(orderDate);
-                final totalPrice = order['totalPrice'] as double;
+                final orderDate = order.createdAt.toDate(); // ✅
+                final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(orderDate);
+                final totalPrice = order.total; // ✅
 
                 return InkWell(
                   onTap: () {
                     Navigator.pushNamed(
                       context,
                       '/order-details',
-                      arguments: order['orderId'],
+                      arguments: order.id,
                     );
                   },
                   child: Card(
                     margin: const EdgeInsets.all(8.0),
                     child: ListTile(
-                      title: Text('Order Date: $formattedDate'),
-                      subtitle: Text('Total: \$${totalPrice.toStringAsFixed(2)}'),
-                      // You can add more details here.
+                      title: Text('Order Date: \$formattedDate'),
+                      subtitle: Text('Total: \$\${totalPrice.toStringAsFixed(2)}'),
                     ),
                   ),
                 );

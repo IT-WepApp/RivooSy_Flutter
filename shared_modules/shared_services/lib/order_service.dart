@@ -60,7 +60,6 @@ class OrderService {
     }
   }
 
-  // ✅ الدالة المطلوبة لعرض جميع الطلبات
   Future<List<OrderModel>> getAllOrders() async {
     try {
       final querySnapshot = await _firestore.collection('orders').get();
@@ -69,6 +68,22 @@ class OrderService {
           .toList();
     } catch (e) {
       print('Error getting all orders: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<OrderModel>> getOrdersBySeller(String sellerId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('orders')
+          .where('sellerId', isEqualTo: sellerId)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error getting orders by seller: $e');
       rethrow;
     }
   }

@@ -1,16 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_modules/shared_models.dart';
+import 'package:shared_models/order_model.dart'; 
 import 'package:user_app/models/cart_item_model.dart'; // Assuming this model exists
 
 class OrderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Places a new order for the user.
-  Future<void> placeOrder(String userId, List<CartItem> cartItems) async {
+  Future<void> placeOrder(String userId, List<CartItem> cartItems, double totalPrice) async {
     try {
-      final totalPrice = cartItems.fold<double>(
-          0.0, (sum, item) => sum + (item.price * item.quantity));
-
       await _firestore.collection('orders').add({
         'userId': userId,
         'orderDate': Timestamp.now(),
@@ -45,27 +42,19 @@ class OrderService {
     }
   }
 
+  /// Fetches a specific order's details.
   Future<OrderModel?> getOrderDetails(String orderId) async {
     try {
-      final docSnapshot =
-          await _firestore.collection('orders').doc(orderId).get();
+      final docSnapshot = await _firestore.collection('orders').doc(orderId).get();
 
       if (docSnapshot.exists) {
         final data = docSnapshot.data() as Map<String, dynamic>;
-        // Include the document ID as 'orderId'
-        return {
-          'orderId': docSnapshot.id,
-          'userId': data['userId'] as String? ?? '',
-          'orderDate': data['orderDate'] as Timestamp? ?? Timestamp.now(),
-          'products': data['products'] as List<Map<String, dynamic>>? ?? [],
-          'totalPrice': (data['totalPrice'] as num?)?.toDouble() ?? 0.0,
-        });
+        data['id'] = docSnapshot.id; // include order ID in the data
+        return OrderModel.fromJson(data);
       }
     } catch (e) {
       print('Error fetching order details: $e');
     }
     return null;
   }
-}
-
 }

@@ -71,17 +71,19 @@ class OrderModel {
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
-      id: json['id'],
-      userId: json['userId'],
-      sellerId: json['sellerId'],
+      id: json['id'] ?? '',
+      userId: json['userId'] ?? '',
+      sellerId: json['sellerId'] ?? '',
       deliveryId: json['deliveryId'],
       products: (json['products'] as List)
-          .map((item) => OrderProductItem.fromJson(item))
+          .map((item) => OrderProductItem.fromJson(item as Map<String, dynamic>))
           .toList(),
-      total: (json['total'] as num).toDouble(),
-      status: json['status'],
-      address: json['address'],
-      createdAt: json['createdAt'] as Timestamp,
+      total: (json['total'] ?? json['totalPrice'] ?? 0.0) is String
+          ? double.tryParse(json['total'] ?? json['totalPrice']) ?? 0.0
+          : (json['total'] ?? json['totalPrice'] ?? 0.0) as double,
+      status: json['status'] ?? 'pending',
+      address: json['address'] ?? '',
+      createdAt: json['createdAt'] as Timestamp? ?? Timestamp.now(),
     );
   }
 }
