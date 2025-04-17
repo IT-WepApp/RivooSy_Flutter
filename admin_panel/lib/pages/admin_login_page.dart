@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_services/user_service.dart';
+import 'package:shared_models/shared_models.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -24,17 +25,12 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         final user = FirebaseAuth.instance.currentUser;
         if (user != null) {
           final uid = user.uid;
-          final userData = await UserService.getUserData(uid);
-          if (userData.exists && userData.data() != null) {
-            final role = userData.data()?['role'];
-            if (role == 'admin') {
-              Navigator.pushReplacementNamed(context, '/adminHome');
-            } else {
-              _showErrorSnackBar('Unauthorized: Admins only.');
-              await FirebaseAuth.instance.signOut();
-            }
+          final userData = await UserService().getUser(uid); // ✅ تم التعديل هنا
+
+          if (userData != null && userData.role == 'admin') {
+            Navigator.pushReplacementNamed(context, '/adminHome');
           } else {
-            _showErrorSnackBar('Could not retrieve user data.');
+            _showErrorSnackBar('Unauthorized: Admins only.');
             await FirebaseAuth.instance.signOut();
           }
         } else {
@@ -86,8 +82,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Add an image or logo (optional)
-              // Image.asset('assets/images/admin_logo.png', height: 100),
               const SizedBox(height: 20),
               Text(
                 "Welcome, Admin!",

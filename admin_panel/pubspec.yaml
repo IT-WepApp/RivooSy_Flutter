@@ -11,9 +11,9 @@ dependencies:
     sdk: flutter
   firebase_auth: ^4.14.0
   cloud_firestore: ^4.13.8
-  shared_models: { path: ../shared_modules/shared_models }
-  shared_services: { path: ../shared_modules/shared_services }
-  shared_widgets: { path: ../shared_modules/shared_widgets }
+  shared_modules:
+  path: ../shared_modules
+
 
 
 dev_dependencies:

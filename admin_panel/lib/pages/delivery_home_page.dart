@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_modules/shared_services.dart';
-import 'package:shared_modules/shared_models.dart';
+import 'package:shared_services/shared_services.dart';
+import 'package:shared_models/shared_models.dart';
 
 class DeliveryHomePage extends StatefulWidget {
   const DeliveryHomePage({Key? key}) : super(key: key);
@@ -20,15 +20,29 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
   }
 
   Future<void> _fetchOrders() async {
-    // Replace with actual logic to fetch delivery-related orders
-    // For example, orders with status 'on_delivery' or assigned to a specific delivery person
-    _orders = await _orderService.getAllOrders(); 
+    _orders = await _orderService.getAllOrders();
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('Delivery Home'),), body: _orders.isEmpty ? const Center(child: Text('No orders found.')) : ListView.builder(itemCount: _orders.length, itemBuilder: (context, index) {final order = _orders[index]; return ListTile(title: Text('Order ID: ${order.id}'), subtitle: Text('Status: ${order.status}'), // Add more relevant order information as needed onTap: () {// Navigate to order details page if needed},);},),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Delivery Home')),
+      body: _orders.isEmpty
+          ? const Center(child: Text('No orders found.'))
+          : ListView.builder(
+              itemCount: _orders.length,
+              itemBuilder: (context, index) {
+                final order = _orders[index];
+                return ListTile(
+                  title: Text('Order ID: ${order.id}'),
+                  subtitle: Text('Status: ${order.status}'),
+                  onTap: () {
+                    // Navigate to order details page if needed
+                  },
+                );
+              },
+            ),
     );
   }
 }

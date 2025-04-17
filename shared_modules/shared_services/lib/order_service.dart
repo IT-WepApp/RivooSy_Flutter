@@ -10,7 +10,7 @@ class OrderService {
       await _firestore.collection('orders').doc(order.id).set(order.toJson());
     } catch (e) {
       print('Error creating order: $e');
-      rethrow; // Re-throw the error to be handled by the caller
+      rethrow;
     }
   }
 
@@ -56,6 +56,19 @@ class OrderService {
           .toList();
     } catch (e) {
       print('Error getting orders by user: $e');
+      rethrow;
+    }
+  }
+
+  // ✅ الدالة المطلوبة لعرض جميع الطلبات
+  Future<List<OrderModel>> getAllOrders() async {
+    try {
+      final querySnapshot = await _firestore.collection('orders').get();
+      return querySnapshot.docs
+          .map((doc) => OrderModel.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error getting all orders: $e');
       rethrow;
     }
   }
