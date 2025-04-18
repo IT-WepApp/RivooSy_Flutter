@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/delivery_home_page.dart';
-import 'package:delivery_app/pages/delivery_login_page.dart';
+import 'package:shared_widgets/theme/theme.dart';
 
 void main() {
   runApp(const DeliveryApp());
@@ -13,10 +13,8 @@ class DeliveryApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'تطبيق التوصيل',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: const DeliveryLoginPage(),
+      theme: AppTheme.lightTheme,
+      home: const DeliveryHomePage(),
       routes: {
         '/deliveryHome': (context) => const DeliveryHomePage(),
       },

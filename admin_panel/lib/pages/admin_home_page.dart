@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../widgets/admin_custom_button.dart';
+import 'package:shared_widgets/app_button.dart';
+import 'package:shared_widgets/theme/colors.dart';
 
 class AdminHomePage extends StatelessWidget {
   const AdminHomePage({Key? key}) : super(key: key);
@@ -10,20 +10,23 @@ class AdminHomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('لوحة الإدارة'),
+        backgroundColor: AppColors.primary,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('مرحباً بك في لوحة الإدارة'),
+            const Text(
+              'مرحباً بك في لوحة الإدارة',
+              style: TextStyle(fontSize: 20),
+            ),
             const SizedBox(height: 20),
-            AdminCustomButton(
-              label: 'عرض التقارير',
+            AppButton(
+              text: 'عرض التقارير',
               onPressed: () {
-                // Use a shared service to fetch and display reports.
-                // This is just a placeholder, replace with actual implementation.
-                // For example:
-                // OrderService().getAllOrders().then((orders) => debugPrint('Orders: $orders'));
+                // هنا بتضيف الكود الفعلي لما تضغط الزر
+                // مثلاً: التنقل إلى صفحة التقارير
+                // Navigator.pushNamed(context, '/reports');
               },
             ),
           ],

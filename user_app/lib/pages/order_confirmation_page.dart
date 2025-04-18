@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:user_app/models/cart_item_model.dart'; // Import CartItem
 import 'package:user_app/services/order_service.dart'; // Import OrderService
-import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_widgets/theme/colors.dart'; // Import FirebaseAuth
+import 'package:user_app/utils/user_constants.dart';
+import 'package:shared_widgets/app_button.dart'; // Import AppButton
 
 class OrderConfirmationPage extends StatefulWidget {
   final List<CartItem> cartItems;
@@ -39,7 +42,8 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Confirm Order'),
+        title:  const Text(UserConstants.appTitle),
+        backgroundColor: AppColors.primary,
       ),
       body: widget.cartItems.isEmpty
           ? const Center(child: Text("Your cart is empty"))
@@ -64,16 +68,9 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-                ElevatedButton(
+                AppButton(
+                  text: 'Confirm Order',
                   onPressed: _placeOrder,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: const Text(
-                    'Confirm Order',
-                    style: TextStyle(color: Colors.white),
-                  ),
                 ),
               ],
             ),

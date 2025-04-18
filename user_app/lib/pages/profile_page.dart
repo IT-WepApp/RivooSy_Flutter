@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_services/user_service.dart';
+import 'package:shared_widgets/theme/colors.dart';
+import 'package:user_app/utils/user_constants.dart';
 import 'package:shared_models/shared_models.dart'; // نموذج المستخدم
 
 class ProfilePage extends StatefulWidget {
@@ -14,7 +16,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(
+        title: const Text(UserConstants.appTitle),
+        backgroundColor: AppColors.primary,),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: _buildUserInfo(),

@@ -14,13 +14,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Flutter
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.10.0'  # اضبط الإصدار حسب احتياجاتك
+          flutter-version: '3.29.2'
+
+      - name: Analyze code
+        run: flutter analyze
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --debug
+      - name: Install Melos & Run Tests
+        run: |
+          flutter pub global activate melos
+          melos bootstrap
+          melos run test
+
+
+

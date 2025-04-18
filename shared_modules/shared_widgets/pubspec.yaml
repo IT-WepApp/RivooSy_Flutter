@@ -3,15 +3,26 @@ description: عناصر واجهة مستخدم مشتركة بين التطبي
 version: 1.0.0
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=3.2.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  shared_models:
-    (path: ../shared_models)
+
+  # اعتماديات على الحزم المشتركة في المونوربو
+shared_models:
+      path: ../shared_models
+shared_services:
+      path: ../shared_services
+
+  # حزم خارجية مستخدمة داخل هذا الباكيج
+  path_provider: ^2.1.1
+  stack_trace: ^1.11.0
 
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:
     sdk: flutter
+
+flutter:
+  uses-material-design: true

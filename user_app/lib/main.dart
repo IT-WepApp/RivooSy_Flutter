@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_widgets/app_button.dart';
+import 'package:shared_widgets/app_text_field.dart';
+import 'package:shared_widgets/theme/colors.dart';
+import 'package:shared_widgets/theme/theme.dart';
+import 'package:shared_services/secure_storage_service.dart';
+import 'package:user_app/pages/order_details_page.dart';
 import 'package:user_app/pages/store_details_page.dart';
-import 'package:user_app/utils/route_constants.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:user_app/pages/my_orders_page.dart';
@@ -10,8 +14,10 @@ import 'package:user_app/pages/order_confirmation_page.dart';
 import 'package:user_app/services/notification_service.dart';
 import 'package:user_app/widgets/home_page_wrapper.dart';
 import 'package:user_app/services/user_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:user_app/utils/user_constants.dart';
 import 'firebase_options.dart';
-import 'package:user_app/pages/order_details_page.dart';
+import 'package:user_app/utils/route_constants.dart';
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -40,14 +46,16 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _rememberMe = false;
 
+  final _secureStorageService = SecureStorageService();
+
   @override
   void initState() {
     super.initState();
     _setupFirebaseMessaging();
-    getDeviceToken().then((_) {
-      FirebaseMessaging.instance.subscribeToTopic('user');
-    });
     _loadCredentials();
+    getDeviceToken().then((_) {
+      FirebaseMessaging.instance.subscribeToTopic('user');      
+    });
   }
 
   Future<void> _setupFirebaseMessaging() async {
@@ -57,45 +65,41 @@ class _LoginPageState extends State<LoginPage> {
       badge: true,
       sound: true,
     );
-    // استخدم interpolation الصحيحة هنا
-    // ignore: avoid_print
-    print('User granted permission: ${settings.authorizationStatus}');
+    debugPrint('User granted permission: ${settings.authorizationStatus}');
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       NotificationService.showLocalNotification(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      // ignore: avoid_print
-      print('Message opened from notification: ${message.data}');
+      debugPrint('Message opened from notification: ${message.data}');
     });
   }
 
   Future<void> _loadCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString('email') ?? '';
-    final password = prefs.getString('password') ?? '';
     final rememberMe = prefs.getBool('rememberMe') ?? false;
 
     setState(() {
       _emailController.text = email;
-      _passwordController.text = password;
       _rememberMe = rememberMe;
     });
 
-    if (_rememberMe && email.isNotEmpty && password.isNotEmpty) {
-      _login(email: email, password: _decrypt(password));
+    if (_rememberMe && email.isNotEmpty) {
+      final password = await _secureStorageService.read('password') ?? '';
+      if (password.isNotEmpty) {
+        _login(email: email, password: password);
+      }
     }
   }
 
   Future<void> getDeviceToken() async {
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
-      // ignore: avoid_print
-      print("FCM Token: $fcmToken");
+      debugPrint("FCM Token: $fcmToken");
     } catch (e) {
-      // ignore: avoid_print
-      print("Error getting FCM token: $e");
+      debugPrint("Error getting FCM token: $e");
     }
   }
 
@@ -112,42 +116,26 @@ class _LoginPageState extends State<LoginPage> {
           final userType = await userService.getUserTypeFromDatabase(user.uid);
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('userType', userType);
-
           await NotificationService().subscribeToTopic(userType);
-          _saveCredentials();
+          await _saveCredentials();
         }
       } on FirebaseAuthException catch (e) {
         _handleAuthError(e);
       } catch (e) {
-        // صححنا interpolation هنا أيضاً
         _showErrorSnackBar('حدث خطأ: ${e.toString()}');
       }
     }
-  }
-
-  String _encrypt(String text) {
-    return text
-        .split('')
-        .map((char) => String.fromCharCode(char.codeUnitAt(0) + 3))
-        .join();
-  }
-
-  String _decrypt(String text) {
-    return text
-        .split('')
-        .map((char) => String.fromCharCode(char.codeUnitAt(0) - 3))
-        .join();
   }
 
   Future<void> _saveCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
       await prefs.setString('email', _emailController.text.trim());
-      await prefs.setString(
-          'password', _encrypt(_passwordController.text.trim()));
+      await _secureStorageService.write('password', _passwordController.text.trim());
       await prefs.setBool('rememberMe', true);
     } else {
       await prefs.clear();
+      await _secureStorageService.delete('password');
     }
   }
 
@@ -158,7 +146,6 @@ class _LoginPageState extends State<LoginPage> {
     } else if (e.code == 'wrong-password') {
       errorMessage = 'كلمة المرور غير صحيحة';
     } else {
-      // صححنا interpolation هنا أيضاً
       errorMessage = 'حدث خطأ: ${e.message}';
     }
     _showErrorSnackBar(errorMessage);
@@ -177,8 +164,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("تسجيل الدخول"),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AppColors.primary,
+        title: const Text(UserConstants.appTitle),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -204,58 +191,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 30),
-              TextFormField(
+              AppTextField(
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "البريد الإلكتروني",
-                  hintText: "أدخل بريدك الإلكتروني",
-                  prefixIcon: Icon(Icons.email, color: Colors.blue.shade400),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Colors.blue.shade700, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "الرجاء إدخال البريد الإلكتروني";
-                  }
-                  if (!value.contains('@') || !value.contains('.')) {
-                    return "الرجاء إدخال بريد إلكتروني صحيح";
-                  }
-                  return null;
-                },
+                label: "البريد الإلكتروني",
               ),
               const SizedBox(height: 15),
-              TextFormField(
+              AppTextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "كلمة المرور",
-                  hintText: "أدخل كلمة المرور",
-                  prefixIcon: Icon(Icons.lock, color: Colors.blue.shade400),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Colors.blue.shade700, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "الرجاء إدخال كلمة المرور";
-                  }
-                  if (value.length < 6) {
-                    return "يجب أن تكون كلمة المرور 6 أحرف على الأقل";
-                  }
-                  return null;
-                },
+                label: "كلمة المرور",
               ),
               const SizedBox(height: 10),
               Row(
@@ -272,21 +216,9 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               const SizedBox(height: 30),
-              ElevatedButton(
+              AppButton(
                 onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  textStyle: const TextStyle(fontSize: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text(
-                  "تسجيل الدخول",
-                  style: TextStyle(color: Colors.white),
-                ),
+                text: "تسجيل الدخول",
               ),
             ],
           ),
@@ -302,10 +234,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'تطبيق المستخدم',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: AppTheme.lightTheme,
       initialRoute: RouteConstants.home,
       routes: {
         RouteConstants.home: (context) => const AuthCheck(),
@@ -329,8 +258,7 @@ class MyApp extends StatelessWidget {
   }
 
   static Widget _orderConfirmationRoute(BuildContext context) {
-    final arguments =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return OrderConfirmationPage(
       cartItems: arguments['cartItems'],
       totalPrice: arguments['totalPrice'],

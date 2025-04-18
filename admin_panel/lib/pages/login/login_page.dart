@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_services/auth_service.dart';
 import 'package:shared_services/user_service.dart';
 import 'package:shared_services/secure_storage_service.dart';
-import 'package:shared_widgets/utils/error_handling.dart'; // <-- تأكد أنه موجود
+import 'package:shared_widgets/app_text_field.dart';
+// حذفنا AppButton لأنه رح نستخدم ElevatedButton مباشرة
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -17,23 +19,25 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   final _secureStorageService = SecureStorageService();
+  final _authService = AuthService();
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+      await _authService.signIn(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
+
       final user = FirebaseAuth.instance.currentUser;
       if (!mounted) return;
 
       if (user != null) {
         final uid = user.uid;
 
-        const refreshTokenObtained = true; // ← يمكنك تغييره لاحقًا
+        const refreshTokenObtained = true; // Replace with actual check
         if (refreshTokenObtained) {
           await _secureStorageService.delete('password');
         }
@@ -44,11 +48,11 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         if (userData != null && userData.role == 'admin') {
           Navigator.pushReplacementNamed(context, '/adminHome');
         } else {
-          showErrorSnackBar(context, 'Unauthorized: Admins only.');
+          _showErrorSnackBar('Unauthorized: Admins only.');
           await FirebaseAuth.instance.signOut();
         }
       } else {
-        showErrorSnackBar(context, 'Authentication error.');
+        _showErrorSnackBar('Authentication error.');
       }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
@@ -60,13 +64,22 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       } else {
         errorMessage = 'Login error: ${e.message}';
       }
-      showErrorSnackBar(context, errorMessage);
+      _showErrorSnackBar(errorMessage);
     } catch (e) {
       if (!mounted) return;
-      showErrorSnackBar(context, 'An unexpected error occurred: $e');
+      _showErrorSnackBar('An unexpected error occurred: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -100,37 +113,16 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 ),
               ),
               const SizedBox(height: 30),
-              TextFormField(
+              AppTextField(
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  hintText: "Enter your admin email",
-                  prefixIcon: Icon(Icons.email, color: Colors.blue.shade400),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue.shade700, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your email";
-                  }
-                  if (!value.contains('@') || !value.contains('.')) {
-                    return "Please enter a valid email address";
-                  }
-                  return null;
-                },
+                label: "Email",
               ),
               const SizedBox(height: 15),
-              TextFormField(
+              AppTextField(
                 controller: _passwordController,
                 obscureText: true,
+                label: "Password",
                 decoration: InputDecoration(
-                  labelText: "Password",
                   hintText: "Enter your password",
                   prefixIcon: Icon(Icons.lock, color: Colors.blue.shade400),
                   border: OutlineInputBorder(
@@ -141,32 +133,25 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your password";
-                  }
-                  if (value.length < 6) {
-                    return "Password must be at least 6 characters";
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 30),
               _isLoading
                   ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade700,
-                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        textStyle: const TextStyle(fontSize: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  : SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        "Login",
-                        style: TextStyle(color: Colors.white),
+                        onPressed: _login,
+                        child: const Text(
+                          "Login",
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                     ),
             ],

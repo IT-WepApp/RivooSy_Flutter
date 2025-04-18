@@ -1,3 +1,5 @@
+import 'package:shared_widgets/app_button.dart';
+import 'package:shared_widgets/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:user_app/models/product_model.dart';
 import 'package:user_app/services/product_service.dart';
@@ -6,6 +8,8 @@ import 'package:user_app/services/cart_service.dart';
 import 'package:user_app/models/cart_item_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:shared_widgets/theme/colors.dart';
+import 'package:user_app/utils/user_constants.dart';
 class StoreDetailsPage extends StatefulWidget {
   final String storeId;
 
@@ -75,7 +79,8 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Store Details'),
+        title:  const Text(UserConstants.appTitle),
+        backgroundColor: AppColors.primary,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _dataFuture,
@@ -142,16 +147,15 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
                       final product = products[index];
                       // parse price once
                       final price = double.tryParse(product.price) ?? 0.0;
-                      return Card(
-                        child: ListTile(
+                      return AppCard(child: ListTile(
                           leading: product.imageUrl.isNotEmpty
                               ? Image.network(product.imageUrl, width: 50, height: 50, fit: BoxFit.cover)
                               : null,
                           title: Text(product.name),
                           subtitle: Text('Price: \$${price.toStringAsFixed(2)}'),
-                          trailing: ElevatedButton(
+                          trailing: AppButton(
                             onPressed: () => _addToCart(product),
-                            child: const Text('Add to Cart'),
+                            text: 'Add to Cart',
                           ),
                         ),
                       );

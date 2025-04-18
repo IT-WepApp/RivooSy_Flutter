@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_services/order_service.dart';
+import 'package:shared_widgets/theme/colors.dart';
+import 'package:delivery_app/utils/delivery_constants.dart';
 import 'package:shared_models/shared_models.dart';
 
 class DeliveryHomePage extends StatefulWidget {
@@ -24,14 +26,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
       isLoading = true;
     });
     try {
-      // Replace with actual logic to fetch orders assigned to the delivery person
-      // For example, if you have a DeliveryService in shared_services:
-      // assignedOrders = await DeliveryService().getAssignedOrders(deliveryPersonId);
-      // Or using OrderService with a query:
+      // Replace with actual logic to fetch orders assigned to the delivery person.
       assignedOrders = await OrderService().getOrdersByUser("someDeliveryId");
     } catch (e) {
       debugPrint("Error loading assigned orders: $e");
-      // Handle error appropriately, e.g., show a snackbar
     } finally {
       setState(() {
         isLoading = false;
@@ -43,7 +41,8 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Delivery App'),
+        title: const Text(DeliveryConstants.appTitle),
+        backgroundColor: AppColors.primary,
       ),
       body: Center(
         child: isLoading
@@ -57,10 +56,39 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
                       return ListTile(
                         title: Text('Order ID: ${order.id}'),
                         subtitle: Text('Status: ${order.status}'),
-                        // Add more details or actions as needed
                       );
                     },
                   ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+              ),
+              child: Text(
+                'القائمة',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home, color: AppColors.primary), // إزالة const هنا
+              title: const Text('الرئيسية'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person, color: AppColors.primary), // إزالة const هنا
+              title: const Text('الملف الشخصي'),
+              onTap: () {
+                
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

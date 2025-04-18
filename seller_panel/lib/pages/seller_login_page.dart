@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:seller_panel/utils/seller_constants.dart';
+import 'package:shared_widgets/theme/colors.dart';
 import 'package:shared_services/user_service.dart';
+import 'package:shared_services/secure_storage_service.dart';
+import 'package:shared_widgets/app_text_field.dart';
+import 'package:shared_widgets/app_button.dart';
+import 'package:shared_widgets/utils/error_handling.dart';
 
 class SellerLoginPage extends StatefulWidget {
   const SellerLoginPage({super.key});
@@ -14,13 +20,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-
-  void _showErrorSnackBar(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
-  }
+  final _secureStorageService = SecureStorageService();
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
@@ -34,8 +34,15 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
 
       if (!mounted) return;
       final user = creds.user;
+
+      const refreshTokenObtained = true; // Replace with actual check
+      if (refreshTokenObtained) {
+        await _secureStorageService.delete('password');
+      }
+
       if (user == null) {
-        _showErrorSnackBar('Authentication failed.');
+        if (!mounted) return;
+        showErrorSnackBar(context, 'Authentication failed.');
         return;
       }
 
@@ -45,7 +52,7 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
       if (userData != null && userData.role == 'seller') {
         Navigator.pushReplacementNamed(context, '/sellerHome');
       } else {
-        _showErrorSnackBar('Unauthorized: Sellers only.');
+        showErrorSnackBar(context, 'Unauthorized: Sellers only.');
         await FirebaseAuth.instance.signOut();
       }
     } on FirebaseAuthException catch (e) {
@@ -55,10 +62,10 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
           : (e.code == 'wrong-password')
               ? 'Wrong password.'
               : 'Login error: ${e.message}';
-      _showErrorSnackBar(errorMessage);
+      showErrorSnackBar(context, errorMessage);
     } catch (e) {
       if (!mounted) return;
-      _showErrorSnackBar('Unexpected error: $e');
+      showErrorSnackBar(context, 'Unexpected error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -67,56 +74,28 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Seller Login')),
+      appBar: AppBar(
+        title: const Text(SellerConstants.appTitle),
+        backgroundColor: AppColors.primary,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Please enter email';
-                  if (!v.contains('@') || !v.contains('.')) return 'Invalid email';
-                  return null;
-                },
-              ),
+            children: [
+              AppTextField(controller: _emailController, label: "Email"),
               const SizedBox(height: 16),
-              TextFormField(
+              AppTextField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
+                label: "Password",
                 obscureText: true,
-                validator: (v) {
-                  if (v == null || v.isEmpty) return 'Please enter password';
-                  if (v.length < 6) return 'Password must be at least 6 characters';
-                  return null;
-                },
               ),
               const SizedBox(height: 24),
               _isLoading
                   ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade700,
-                        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        textStyle: const TextStyle(fontSize: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text('Login', style: TextStyle(color: Colors.white)),
-                    ),
+                  : AppButton(onPressed: _login, text: "Login"),
             ],
           ),
         ),

@@ -1,3 +1,3 @@
 class UserConstants {
-  static const String appTitle = 'تطبيق المستخدم';
+  static const String appTitle = "Foodie";
 }

@@ -1,3 +1,3 @@
 class SellerConstants {
-  static const String appTitle = 'تطبيق صاحب المتجر';
+  static const String appTitle = 'Foodie';
 }

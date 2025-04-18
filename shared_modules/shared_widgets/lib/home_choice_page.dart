@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 
 class HomeChoicePage extends StatelessWidget {
-  const HomeChoicePage({Key? key}) : super(key: key);
+  const HomeChoicePage({super.key});
 
   /// دالة لإظهار نافذة اختيار لتسجيل دخول البائع أو الديليفري.
   void _showSellerOrDeliveryDialog(BuildContext context) {

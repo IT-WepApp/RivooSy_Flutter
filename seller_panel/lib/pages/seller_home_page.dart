@@ -1,7 +1,10 @@
 import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
+import 'package:shared_widgets/theme/colors.dart';
 import 'package:shared_services/shared_services.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:shared_widgets/app_card.dart';
+import 'package:seller_panel/utils/seller_constants.dart';
 
 class SellerHomePage extends StatefulWidget {
   const SellerHomePage({super.key});
@@ -42,7 +45,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
         setState(() => _orders = []);
       }
     }
-    // الآن ننهي التحميل بعد المحاولة، دون استخدام return في finally
+
     if (mounted) {
       setState(() => _isLoading = false);
     }
@@ -51,7 +54,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('لوحة تاجر')),
+      appBar: AppBar(title: const Text(SellerConstants.appTitle)),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _orders.isEmpty
@@ -60,8 +63,7 @@ class _SellerHomePageState extends State<SellerHomePage> {
                   itemCount: _orders.length,
                   itemBuilder: (context, index) {
                     final order = _orders[index];
-                    return Card(
-                      margin: const EdgeInsets.all(8.0),
+                    return AppCard(
                       child: ListTile(
                         title: Text('Order #${order.id}'),
                         subtitle: Column(
@@ -76,6 +78,29 @@ class _SellerHomePageState extends State<SellerHomePage> {
                     );
                   },
                 ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: const <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+              ),
+              child: Text(
+                'Foodie',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home, color: AppColors.primary),
+              title: Text('Home'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

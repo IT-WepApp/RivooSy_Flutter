@@ -1,5 +1,5 @@
 include: package:flutter_lints/flutter.yaml
 
-linter:
-  rules:
-    # أضِف قواعدك هنا...
+analyzer:
+  exclude:
+    - "**/*.g.dart"

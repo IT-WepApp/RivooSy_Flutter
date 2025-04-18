@@ -6,8 +6,7 @@ class SharedCustomButton extends StatelessWidget {
   final String title;
   final VoidCallback onPressed;
 
-  const SharedCustomButton({Key? key, required this.title, required this.onPressed})
-      : super(key: key);
+  const SharedCustomButton({super.key, required this.title, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

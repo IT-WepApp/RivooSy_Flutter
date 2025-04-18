@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:user_app/services/order_service.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_widgets/theme/colors.dart';
+import 'package:user_app/utils/user_constants.dart';
 import 'package:shared_models/order_model.dart';
 
 class OrderDetailsPage extends StatefulWidget {
@@ -26,7 +28,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Order Details'),
+        title: const Text(UserConstants.appTitle),
+        backgroundColor: AppColors.primary,
       ),
       body: FutureBuilder<OrderModel?>(
         future: _orderDetailsFuture,

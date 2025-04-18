@@ -1,3 +1,3 @@
 class DeliveryConstants {
-  static const String appTitle = 'تطبيق التوصيل';
+  static const String appTitle = 'Foodie';
 }

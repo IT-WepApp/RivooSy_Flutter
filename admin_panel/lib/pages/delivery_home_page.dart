@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_services/shared_services.dart';
 import 'package:shared_models/shared_models.dart';
+import 'package:shared_widgets/theme/colors.dart';
 
 class DeliveryHomePage extends StatefulWidget {
   const DeliveryHomePage({Key? key}) : super(key: key);
@@ -28,7 +29,10 @@ class _DeliveryHomePageState extends State<DeliveryHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Delivery Home')),
+      appBar: AppBar(
+        title: const Text('Delivery Home'),
+        backgroundColor: AppColors.primary,
+      ),
       body: _orders.isEmpty
           ? const Center(child: Text('No orders found.'))
           : ListView.builder(

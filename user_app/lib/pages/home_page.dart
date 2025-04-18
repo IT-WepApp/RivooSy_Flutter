@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:user_app/models/store_model.dart';
+import 'package:shared_widgets/theme/colors.dart';
 import 'package:user_app/services/store_service.dart';
+import 'package:user_app/utils/user_constants.dart';
 import 'package:cached_network_image/cached_network_image.dart'; // Import cached_network_image
 
 class HomePage extends StatefulWidget {
@@ -24,7 +26,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text(UserConstants.appTitle),
+        backgroundColor: AppColors.primary,
       ),
       body: FutureBuilder<List<Store>>(
         future: _storesFuture,

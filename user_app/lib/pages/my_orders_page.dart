@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_widgets/theme/colors.dart';
 import 'package:user_app/services/order_service.dart';
 import 'package:shared_models/order_model.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_widgets/app_card.dart';
+import 'package:user_app/utils/user_constants.dart';
 
 class MyOrdersPage extends StatefulWidget {
   const MyOrdersPage({super.key});
@@ -33,7 +36,8 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Orders'),
+        title: const Text(UserConstants.appTitle),
+        backgroundColor: AppColors.primary,
       ),
       body: FutureBuilder<List<OrderModel>>(
         future: _ordersFuture,
@@ -62,13 +66,13 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                       arguments: order.id,
                     );
                   },
-                  child: Card(
+                  child: AppCard(
                     margin: const EdgeInsets.all(8.0),
                     child: ListTile(
                       title: Text('Order Date: $formattedDate'),
                       subtitle: Text('Total: \$${totalPrice.toStringAsFixed(2)}'),
                     ),
-                  ),
+                  )
                 );
               },
             );

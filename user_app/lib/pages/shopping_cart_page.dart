@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-  import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:user_app/services/cart_service.dart';
 import 'package:user_app/models/cart_item_model.dart';
+import 'package:shared_widgets/theme/colors.dart';
+import 'package:shared_widgets/app_button.dart';
+import 'package:shared_widgets/app_card.dart';
+import 'package:user_app/utils/user_constants.dart';
 
 class ShoppingCartPage extends StatefulWidget {
   const ShoppingCartPage({super.key});
@@ -37,7 +41,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping Cart'),
+        title: const Text(UserConstants.appTitle),
+        backgroundColor: AppColors.primary,
       ),
       body: FutureBuilder<List<CartItem>>(
         future: _cartItemsFuture,
@@ -71,10 +76,10 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
+                  padding: const EdgeInsets.all(16),
+                  child: AppButton(
+                    text: 'Checkout',
                     onPressed: () => _checkout(cartItems, totalPrice),
-                    child: const Text('Checkout'),
                   ),
                 ),
               ],
@@ -90,49 +95,49 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   Widget _buildCartItem(CartItem item) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
+    return AppCard(
       child: ListTile(
-        title: Text(item.name),
-        subtitle: const Text('Quantity: \${item.quantity}'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.remove),
-              onPressed: () => _updateQuantity(item, item.quantity - 1),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () => _updateQuantity(item, item.quantity + 1),
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => _removeItem(item),
-            ),
-          ],
+          title: Text(item.name),
+          subtitle: Text('Quantity: ${item.quantity}'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove),
+                onPressed: () => _updateQuantity(item, item.quantity - 1),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () => _updateQuantity(item, item.quantity + 1),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _removeItem(item),
+              ),
+            ],
+          ),
         ),
-      ),
     );
   }
 
   Future<void> _updateQuantity(CartItem item, int newQuantity) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Please log in.'),
+      ));
       return;
     }
 
     if (newQuantity > 0) {
       try {
-        await _cartService.updateCartItemQuantity(userId, item.productId, newQuantity);
+        await _cartService.updateCartItemQuantity(
+            userId, item.productId, newQuantity);
         setState(() {
           _cartItemsFuture = _fetchCartItems();
         });
       } catch (e) {
-        debugPrint('Error updating quantity: \$e');
+        debugPrint('Error updating quantity: $e');
       }
     }else {
       try {
@@ -141,7 +146,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           _cartItemsFuture = _fetchCartItems();
         });
       } catch (e) {
-        debugPrint('Error removing item: \$e');
+        debugPrint('Error removing item: $e');
       }
     }
   }
@@ -149,9 +154,9 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   Future<void> _removeItem(CartItem item) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Please log in.'),
+      ));
       return;
     }
 
@@ -161,7 +166,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         _cartItemsFuture = _fetchCartItems();
       });
     } catch (e) {
-      debugPrint('Error removing item: \$e');
+      debugPrint('Error removing item: $e');
     }
   }
 
