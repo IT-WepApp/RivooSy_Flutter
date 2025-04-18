@@ -16,8 +16,6 @@ dependencies:
     path: ../shared_modules/shared_services
   shared_widgets:
     path: ../shared_modules/shared_widgets
-  shared_widgets:
-    path: ../shared_widgets/shared_widgets
   firebase_auth: ^5.5.2
 
 dev_dependencies:

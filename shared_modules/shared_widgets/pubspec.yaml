@@ -2,6 +2,8 @@ name: shared_widgets
 description: عناصر واجهة مستخدم مشتركة بين التطبيقات.
 version: 1.0.0
 
+publish_to: 'none'
+
 environment:
   sdk: ">=3.2.0 <4.0.0"
 
@@ -9,13 +11,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # اعتماديات على الحزم المشتركة في المونوربو
-shared_models:
-      path: ../shared_models
-shared_services:
-      path: ../shared_services
+  shared_models:
+    path: ../shared_models
+  shared_services:
+    path: ../shared_services
 
-  # حزم خارجية مستخدمة داخل هذا الباكيج
   path_provider: ^2.1.1
   stack_trace: ^1.11.0
 

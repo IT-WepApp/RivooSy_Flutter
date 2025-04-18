@@ -26,7 +26,7 @@ dependencies:
   intl: ^0.20.2
 
   # HTTP requests
-  http: ^0.13.6
+  http: ^1.3.0
 
   # الحزم المشتركة في المونوربو
   shared_models:

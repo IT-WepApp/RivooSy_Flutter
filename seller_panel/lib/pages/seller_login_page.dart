@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:seller_panel/utils/seller_constants.dart';
+import '../utils/seller_constants.dart';
 import 'package:shared_widgets/theme/colors.dart';
 import 'package:shared_services/user_service.dart';
 import 'package:shared_services/secure_storage_service.dart';
@@ -41,10 +41,11 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
       }
 
       if (user == null) {
-        if (!mounted) return;
-        showErrorSnackBar(context, 'Authentication failed.');
-        return;
+       if (!mounted) return;
+       showErrorSnackBar(context, 'Authentication failed.');
+       return;
       }
+
 
       final userData = await UserService().getUser(user.uid);
       if (!mounted) return;
@@ -57,15 +58,22 @@ class _SellerLoginPageState extends State<SellerLoginPage> {
       }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-      final errorMessage = (e.code == 'user-not-found')
-          ? 'Email not found.'
-          : (e.code == 'wrong-password')
-              ? 'Wrong password.'
-              : 'Login error: ${e.message}';
+      final errorMessage = switch (e.code) {
+        'user-not-found' => 'Email not found.',
+        'wrong-password' => 'Wrong password.',
+        'network-request-failed' => 'No internet connection.',
+        _ => 'Login error: ${e.message}',
+      };
       showErrorSnackBar(context, errorMessage);
     } catch (e) {
       if (!mounted) return;
-      showErrorSnackBar(context, 'Unexpected error: $e');
+      final isNetworkError = e.toString().contains('network') || e.toString().contains('unreachable');
+      showErrorSnackBar(
+        context,
+        isNetworkError
+            ? 'Network error. Please check your connection and try again.'
+            : 'Unexpected error: $e',
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

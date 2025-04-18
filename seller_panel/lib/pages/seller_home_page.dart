@@ -4,7 +4,7 @@ import 'package:shared_widgets/theme/colors.dart';
 import 'package:shared_services/shared_services.dart';
 import 'package:shared_models/shared_models.dart';
 import 'package:shared_widgets/app_card.dart';
-import 'package:seller_panel/utils/seller_constants.dart';
+import '../utils/seller_constants.dart';
 
 class SellerHomePage extends StatefulWidget {
   const SellerHomePage({super.key});
