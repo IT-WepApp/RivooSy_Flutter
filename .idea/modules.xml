@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/admin_panel/melos_admin_panel.iml" filepath="$PROJECT_DIR$/admin_panel/melos_admin_panel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/admin_panell/melos_admin_panell.iml" filepath="$PROJECT_DIR$/admin_panell/melos_admin_panell.iml" />
       <module fileurl="file://$PROJECT_DIR$/delivery_app/melos_delivery_app.iml" filepath="$PROJECT_DIR$/delivery_app/melos_delivery_app.iml" />
       <module fileurl="file://$PROJECT_DIR$/seller_panel/melos_seller_panel.iml" filepath="$PROJECT_DIR$/seller_panel/melos_seller_panel.iml" />
       <module fileurl="file://$PROJECT_DIR$/shared_modules/shared_models/melos_shared_models.iml" filepath="$PROJECT_DIR$/shared_modules/shared_models/melos_shared_models.iml" />

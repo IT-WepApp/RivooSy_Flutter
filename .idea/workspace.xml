@@ -8,8 +8,8 @@
       <change afterPath="$PROJECT_DIR$/shared_modules/shared_widgets/lib/home_choice_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/RivooSy_Flutter.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/RivooSy_Flutter.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin_panel/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/admin_panel/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin_panel/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/admin_panel/test/widget_test.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin_panell/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/admin_panell/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin_panell/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/admin_panell/test/widget_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/delivery_app/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/delivery_app/test/widget_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/seller_panel/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/seller_panel/test/widget_test.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared_modules/shared_models/test/shared_models_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/shared_modules/shared_models/test/shared_models_test.dart" afterDir="false" />

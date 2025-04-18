@@ -1,6 +1,6 @@
 {
-    "name": "admin_panel",
-    "short_name": "admin_panel",
+    "name": "admin_panell",
+    "short_name": "admin_panell",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
