@@ -58,6 +58,7 @@ class _LoginPageState extends State<LoginPage> {
       sound: true,
     );
     // استخدم interpolation الصحيحة هنا
+    // ignore: avoid_print
     print('User granted permission: ${settings.authorizationStatus}');
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -65,6 +66,7 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      // ignore: avoid_print
       print('Message opened from notification: ${message.data}');
     });
   }
@@ -89,8 +91,10 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> getDeviceToken() async {
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
+      // ignore: avoid_print
       print("FCM Token: $fcmToken");
     } catch (e) {
+      // ignore: avoid_print
       print("Error getting FCM token: $e");
     }
   }

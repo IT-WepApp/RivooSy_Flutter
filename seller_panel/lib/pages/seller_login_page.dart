@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_services/user_service.dart';
 
 class SellerLoginPage extends StatefulWidget {
-  const SellerLoginPage({Key? key}) : super(key: key);
+  const SellerLoginPage({super.key});
 
   @override
   State<SellerLoginPage> createState() => _SellerLoginPageState();

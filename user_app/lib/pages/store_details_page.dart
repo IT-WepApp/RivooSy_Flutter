@@ -46,15 +46,19 @@ class _StoreDetailsPageState extends State<StoreDetailsPage> {
 
     try {
       await _cartService.addToCart(userId, cartItem);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Added to cart!')),
-      );
+      if(mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Added to cart!')),
+        );
+      }
     } catch (e) {
       // ignore: avoid_print
-      print("Error adding to cart: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add to cart: $e')),
-      );
+      debugPrint("Error adding to cart: $e");
+      if(mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add to cart: $e')),
+        );
+      }
     }
   }
 

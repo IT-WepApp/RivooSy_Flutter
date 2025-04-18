@@ -7,7 +7,7 @@ void main() {
 }
 
 class SellerPanelApp extends StatelessWidget {
-  const SellerPanelApp({Key? key}) : super(key: key);
+  const SellerPanelApp({super.key});
 
   @override
   Widget build(BuildContext context) {

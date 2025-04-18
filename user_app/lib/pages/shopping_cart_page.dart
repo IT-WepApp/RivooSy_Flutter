@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+  import 'package:firebase_auth/firebase_auth.dart';
 import 'package:user_app/services/cart_service.dart';
 import 'package:user_app/models/cart_item_model.dart';
 
@@ -132,17 +132,16 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           _cartItemsFuture = _fetchCartItems();
         });
       } catch (e) {
-        // ignore: avoid_print
-        print('Error updating quantity: \$e');
+        debugPrint('Error updating quantity: \$e');
       }
-    } else {
+    }else {
       try {
         await _cartService.removeCartItem(userId, item.productId);
         setState(() {
           _cartItemsFuture = _fetchCartItems();
         });
       } catch (e) {
-        print('Error removing item: \$e');
+        debugPrint('Error removing item: \$e');
       }
     }
   }
@@ -162,8 +161,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         _cartItemsFuture = _fetchCartItems();
       });
     } catch (e) {
-      // ignore: avoid_print
-      print('Error removing item: \$e');
+      debugPrint('Error removing item: \$e');
     }
   }
 

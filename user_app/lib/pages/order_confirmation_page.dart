@@ -18,18 +18,21 @@ class _OrderConfirmationPageState extends State<OrderConfirmationPage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must be logged in to place an order.')),
-      );
+          const SnackBar(content: Text('You must be logged in to place an order.')));
       return;
     }
 
     final userId = user.uid;
     await OrderService().placeOrder(userId, widget.cartItems, widget.totalPrice);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Order placed successfully!')),
-    );
-    Navigator.pushReplacementNamed(context, '/my-orders');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Order placed successfully!')),
+      );
+    }
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/my-orders');
+    }
   }
 
   @override
