@@ -4,29 +4,39 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
+  # Firebase حزم
+  firebase_core: ^3.13.0
+  firebase_auth: ^5.5.2
+  firebase_messaging: ^15.2.5
+  cloud_firestore: ^5.6.6
+
+  # إشعارات وتخزين محلي
+  flutter_local_notifications: ^19.1.0
+  overlay_support: ^2.0.0
+  shared_preferences: ^2.2.2
+
+  # واجهة المستخدم
+  cached_network_image: ^3.3.1
+  intl: ^0.20.2
+
+  # الحزم المشتركة في المونوربو
   shared_models:
     path: ../shared_modules/shared_models
-
   shared_services:
     path: ../shared_modules/shared_services
-
   shared_widgets:
     path: ../shared_modules/shared_widgets
-
-  firebase_auth: ^5.5.2
-  cloud_firestore: ^5.6.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^2.0.0   # ← أضف هذا السطر
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true

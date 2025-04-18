@@ -1,18 +1,18 @@
 /*
- * android/app/build.gradle  (user_app)
- * متوافق مع Gradle 8.5  +  AGP 8.3  +  JDK 17
+ * android/build.gradle (seller_panel)
+ * مهيّأ لـ compileSdk/targetSdk = 35 ويعمل مع Gradle 8.5 و AGP 8.3
  */
 
 plugins {
-    // يُفضَّل تحديد الإصدارات هنا فقط إن لم تُحدَّد في build.gradle (المستوى الأعلى):
-    id "com.android.application"           
-    id "org.jetbrains.kotlin.android"      
-    id "com.google.gms.google-services"    
-    id "dev.flutter.flutter-gradle-plugin" 
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "com.google.gms.google-services"
+    id "dev.flutter.flutter-gradle-plugin"
 }
 
-def localProperties      = new Properties()
-def localPropertiesFile  = rootProject.file("local.properties")
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localPropertiesFile.withReader("UTF-8") { reader ->
         localProperties.load(reader)
@@ -23,19 +23,19 @@ def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "
 def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    namespace "com.example.user_app"
+    namespace "com.example.seller_panel"
 
-    // آخر SDK مستقر في الوقت الراهن
-    compileSdk 34
+    // يجب أن يكون مساويًا لـ targetSdk
+    compileSdk 35
     ndkVersion "23.1.7779620"
 
     defaultConfig {
-        applicationId "com.example.user_app"
-        minSdk       23
-        targetSdk    34
+        applicationId "com.example.seller_panel"
+        minSdk 23
+        targetSdk 35
 
-        versionCode  flutterVersionCode.toInteger()
-        versionName  flutterVersionName
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
     }
 
     // JDK 17
@@ -48,29 +48,32 @@ android {
     }
 
     buildTypes {
-        debug   { signingConfig signingConfigs.debug }
-        release {
+        debug {
+            // يسمح بإزالة الخطوط الحمراء عن طريق التوقيع الافتراضي
             signingConfig signingConfigs.debug
-            // فعِّل هذه الخيارات عند رفع التطبيق للإصدار النهائي:
+        }
+        release {
+            // استخدم signingConfig خاصتك هنا عند رفع التطبيق
+            signingConfig signingConfigs.debug
+            // مثال لتمكين ضغط الكود:
             // minifyEnabled true
-            // proguardFiles getDefaultProguardFile(
-            //     "proguard-android-optimize.txt"),
-            //     "proguard-rules.pro"
+            // proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
+            //               "proguard-rules.pro"
         }
     }
 
-    // لو وُجدت ملفات Kotlin إضافية
+    // لو لديك ملفات Kotlin في src/main/kotlin
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
     }
 }
 
 flutter {
-    // مسار جذر مشروع Flutter بالنسبة لهذا المجلد
+    // يشير إلى جذر مصدر Flutter للتطبيق
     source "../.."
 }
 
 dependencies {
-    // ضع تبعيات Android الإضافية هنا
+    // ضع أي تبعيات Android إضافية هنا
     // implementation "androidx.core:core-ktx:1.13.0"
 }

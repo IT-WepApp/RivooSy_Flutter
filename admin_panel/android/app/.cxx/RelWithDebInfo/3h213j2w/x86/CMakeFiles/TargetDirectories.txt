@@ -1,0 +1,2 @@
+D:/IT-WepApp/RivooSy_Flutter/admin_panel/android/app/.cxx/RelWithDebInfo/3h213j2w/x86/CMakeFiles/edit_cache.dir
+D:/IT-WepApp/RivooSy_Flutter/admin_panel/android/app/.cxx/RelWithDebInfo/3h213j2w/x86/CMakeFiles/rebuild_cache.dir
