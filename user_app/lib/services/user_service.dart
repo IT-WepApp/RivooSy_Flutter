@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -17,4 +18,8 @@ class UserService {
       return 'user';
     }
   }
+
+  getUserData(String userId) {}
 }
+
+final userServiceProvider = Provider<UserService>((ref) => UserService());

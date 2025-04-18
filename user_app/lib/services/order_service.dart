@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_models/order_model.dart'; 
-import 'package:user_app/models/cart_item_model.dart'; // Assuming this model exists
+import 'package:shared_models/cart_item_model.dart'; // Assuming this model exists
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 class OrderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -61,3 +62,5 @@ class OrderService {
     return null;
   }
 }
+
+final orderServiceProvider = Provider<OrderService>((ref) => OrderService());

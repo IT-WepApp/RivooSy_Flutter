@@ -1,114 +1,157 @@
+// shopping_cart_page.dart
+
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_models/cart_item_model.dart';
 import 'package:user_app/services/cart_service.dart';
-import 'package:user_app/models/cart_item_model.dart';
 
-class ShoppingCartPage extends StatefulWidget {
-  const ShoppingCartPage({super.key});
+/// Provider for the CartService
+final cartServiceProvider = Provider<CartService>((ref) => CartService());
 
-  @override
-  State<ShoppingCartPage> createState() => _ShoppingCartPageState();
-}
+/// StateNotifierProvider for the shopping cart
+final shoppingCartProvider =
+    StateNotifierProvider<ShoppingCartNotifier, AsyncValue<List<CartItem>>>(
+  (ref) => ShoppingCartNotifier(ref),
+);
 
-class _ShoppingCartPageState extends State<ShoppingCartPage> {
-  late Future<List<CartItem>> _cartItemsFuture;
-  final CartService _cartService = CartService();
-
-  @override
-  void initState() {
-    super.initState();
-    _cartItemsFuture = _fetchCartItems();
+class ShoppingCartNotifier extends StateNotifier<AsyncValue<List<CartItem>>> {
+  ShoppingCartNotifier(this.ref) : super(const AsyncValue.loading()) {
+    fetchCartItems();
   }
 
-  Future<List<CartItem>> _fetchCartItems() async {
+  final Ref ref;
+
+  Future<void> fetchCartItems() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
-      return _cartService.getCartItems(userId);
-    } else {
-      return [];
+    if (userId == null) {
+      state = const AsyncValue.data([]);
+      return;
+    }
+    try {
+      final items = await ref.read(cartServiceProvider).getCartItems(userId);
+      state = AsyncValue.data(items);
+    } catch (e, st) {
+      developer.log(
+        'Error fetching cart items',
+        error: e,
+        stackTrace: st,
+        name: 'ShoppingCartNotifier',
+      );
+      state = AsyncValue.error(e, st);
     }
   }
 
-  double _calculateTotalPrice(List<CartItem> items) {
-    return items.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
+  Future<void> updateQuantity(CartItem item, int newQuantity) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+    try {
+      if (newQuantity > 0) {
+        await ref
+            .read(cartServiceProvider)
+            .updateCartItemQuantity(userId, item.productId, newQuantity);
+      } else {
+        await ref.read(cartServiceProvider).removeFromCart(userId, item.productId);
+      }
+      await fetchCartItems();
+    } catch (e, st) {
+      developer.log(
+        'Error updating quantity',
+        error: e,
+        stackTrace: st,
+        name: 'ShoppingCartNotifier',
+      );
+    }
   }
 
+  Future<void> removeItem(CartItem item) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+    try {
+      await ref.read(cartServiceProvider).removeFromCart(userId, item.productId);
+      await fetchCartItems();
+    } catch (e, st) {
+      developer.log(
+        'Error removing item',
+        error: e,
+        stackTrace: st,
+        name: 'ShoppingCartNotifier',
+      );
+    }
+  }
+}
+
+class ShoppingCartPage extends ConsumerWidget {
+  const ShoppingCartPage({super.key});
+
+  double _calculateTotalPrice(List<CartItem> items) =>
+      items.fold(0.0, (sum, item) => sum + item.price * item.quantity);
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cartState = ref.watch(shoppingCartProvider);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shopping Cart'),
-      ),
-      body: FutureBuilder<List<CartItem>>(
-        future: _cartItemsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: Text('Error: \${snapshot.error}'));
-          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            final cartItems = snapshot.data!;
-            final totalPrice = _calculateTotalPrice(cartItems);
-            return Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: cartItems.length,
-                    itemBuilder: (context, index) {
-                      final item = cartItems[index];
-                      return _buildCartItem(item);
-                    },
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Total: \$\${totalPrice.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    onPressed: () => _checkout(cartItems, totalPrice),
-                    child: const Text('Checkout'),
-                  ),
-                ),
-              ],
-            );
-          } else {
-            return const Center(
-              child: Text('Your cart is empty.'),
-            );
+      appBar: AppBar(title: const Text('Shopping Cart')),
+      body: cartState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
+        data: (items) {
+          if (items.isEmpty) {
+            return const Center(child: Text('Your cart is empty.'));
           }
+          final total = _calculateTotalPrice(items);
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (ctx, i) => _buildCartItem(ctx, ref, items[i]),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'Total: \$${total.toStringAsFixed(2)}',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: ElevatedButton(
+                  onPressed: () => _checkout(context, items, total),
+                  child: const Text('Checkout'),
+                ),
+              ),
+            ],
+          );
         },
       ),
     );
   }
 
-  Widget _buildCartItem(CartItem item) {
+  Widget _buildCartItem(BuildContext context, WidgetRef ref, CartItem item) {
+    final notifier = ref.read(shoppingCartProvider.notifier);
     return Card(
-      margin: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.all(8),
       child: ListTile(
         title: Text(item.name),
-        subtitle: const Text('Quantity: \${item.quantity}'),
+        subtitle: Text('Quantity: ${item.quantity}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
               icon: const Icon(Icons.remove),
-              onPressed: () => _updateQuantity(item, item.quantity - 1),
+              onPressed: () => notifier.updateQuantity(item, item.quantity - 1),
             ),
             IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () => _updateQuantity(item, item.quantity + 1),
+              onPressed: () => notifier.updateQuantity(item, item.quantity + 1),
             ),
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () => _removeItem(item),
+              onPressed: () => notifier.removeItem(item),
             ),
           ],
         ),
@@ -116,63 +159,16 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     );
   }
 
-  Future<void> _updateQuantity(CartItem item, int newQuantity) async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in.')),
-      );
-      return;
-    }
-
-    if (newQuantity > 0) {
-      try {
-        await _cartService.updateCartItemQuantity(userId, item.productId, newQuantity);
-        setState(() {
-          _cartItemsFuture = _fetchCartItems();
-        });
-      } catch (e) {
-        // ignore: avoid_print
-        print('Error updating quantity: \$e');
-      }
-    } else {
-      try {
-        await _cartService.removeCartItem(userId, item.productId);
-        setState(() {
-          _cartItemsFuture = _fetchCartItems();
-        });
-      } catch (e) {
-        print('Error removing item: \$e');
-      }
-    }
-  }
-
-  Future<void> _removeItem(CartItem item) async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please log in.')),
-      );
-      return;
-    }
-
-    try {
-      await _cartService.removeCartItem(userId, item.productId);
-      setState(() {
-        _cartItemsFuture = _fetchCartItems();
-      });
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error removing item: \$e');
-    }
-  }
-
-  Future<void> _checkout(List<CartItem> cartItems, double totalPrice) async {
+  void _checkout(
+    BuildContext context,
+    List<CartItem> items,
+    double totalPrice,
+  ) {
     Navigator.pushNamed(
       context,
       '/order-confirmation',
       arguments: {
-        'cartItems': cartItems,
+        'cartItems': items,
         'totalPrice': totalPrice,
       },
     );

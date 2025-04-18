@@ -1,62 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:user_app/models/store_model.dart';
+import 'package:shared_models/store_model.dart';
 import 'package:user_app/services/store_service.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // Import cached_network_image
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final StoreService _storeService = StoreService();
-  late Future<List<Store>> _storesFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _storesFuture = _storeService.getStores();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final storesState = ref.watch(storesProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
       ),
-      body: FutureBuilder<List<Store>>(
-        future: _storesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            final stores = snapshot.data!;
-            return ListView.builder(
-              itemCount: stores.length,
-              itemBuilder: (context, index) {
-                final store = stores[index];
-                return InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/store-details', arguments: store.id);
-                  },
-                  child: ListTile(
-                    leading: CachedNetworkImage(
-                      imageUrl: store.image,
-                      placeholder: (context, url) => const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(store.name),
-                  ),
-                );
-              },
-            );
+      body: storesState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('Error: $error')),
+        data: (stores) {
+          if (stores.isNotEmpty) {
+            return _buildStoreList(context, stores);
           } else {
             return const Center(child: Text('No stores found.'));
           }
@@ -64,4 +27,50 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  Widget _buildStoreList(BuildContext context, List<Store> stores) {
+    return ListView.builder(
+      itemCount: stores.length,
+      itemBuilder: (context, index) {
+        final store = stores[index];
+        return InkWell(
+          onTap: () {
+            Navigator.pushNamed(context, '/store-details', arguments: store.id);
+          },
+          child: ListTile(
+            leading: CachedNetworkImage(
+              imageUrl: store.image,
+              placeholder: (context, url) => const CircularProgressIndicator(),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            ),
+            title: Text(store.name),
+          ),
+        );
+      },
+    );
+  }
+}
+
+final storesProvider = StateNotifierProvider<StoresNotifier, AsyncValue<List<Store>>>(
+  (ref) => StoresNotifier(ref),
+);
+
+class StoresNotifier extends StateNotifier<AsyncValue<List<Store>>> {
+  final Ref ref;
+  StoresNotifier(this.ref) : super(const AsyncValue.loading()) {
+    getStores();
+  }
+
+  Future<void> getStores() async {
+    try {
+      final storeService = ref.read(storeServiceProvider);
+      final stores = await storeService.getStores();
+      state = AsyncValue.data(stores);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
+}
 }

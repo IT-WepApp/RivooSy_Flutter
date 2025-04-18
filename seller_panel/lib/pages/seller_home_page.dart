@@ -4,7 +4,7 @@ import 'package:shared_services/shared_services.dart';
 import 'package:shared_models/shared_models.dart';
 
 class SellerHomePage extends StatefulWidget {
-  const SellerHomePage({Key? key}) : super(key: key);
+  const SellerHomePage({super.key});
 
   @override
   State<SellerHomePage> createState() => _SellerHomePageState();

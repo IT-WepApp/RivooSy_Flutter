@@ -17,6 +17,7 @@ void main() {
 
 class AdminPanelApp extends StatelessWidget {
   const AdminPanelApp({Key? key}) : super(key: key);
+  // If needed in a stateful widget handling credentials: const FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:user_app/pages/store_details_page.dart';
 import 'package:user_app/utils/route_constants.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -24,7 +25,11 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  runApp(const MyApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class LoginPage extends StatefulWidget {
@@ -39,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _rememberMe = false;
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -70,19 +76,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _loadCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('email') ?? '';
-    final password = prefs.getString('password') ?? '';
-    final rememberMe = prefs.getBool('rememberMe') ?? false;
+    final email = await _storage.read(key: 'email') ?? '';
+    final password = await _storage.read(key: 'password') ?? '';
+    final rememberMe = await _storage.read(key: 'rememberMe') ?? 'false';
 
     setState(() {
       _emailController.text = email;
       _passwordController.text = password;
-      _rememberMe = rememberMe;
+      _rememberMe = rememberMe == 'true';
     });
 
     if (_rememberMe && email.isNotEmpty && password.isNotEmpty) {
-      _login(email: email, password: _decrypt(password));
+      _login(email: email, password: password);
     }
   }
 
@@ -106,8 +111,8 @@ class _LoginPageState extends State<LoginPage> {
         if (user != null) {
           final userService = UserService();
           final userType = await userService.getUserTypeFromDatabase(user.uid);
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('userType', userType);
+          // final prefs = await SharedPreferences.getInstance();
+          // await prefs.setString('userType', userType);
 
           await NotificationService().subscribeToTopic(userType);
           _saveCredentials();
@@ -121,29 +126,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  String _encrypt(String text) {
-    return text
-        .split('')
-        .map((char) => String.fromCharCode(char.codeUnitAt(0) + 3))
-        .join();
-  }
-
-  String _decrypt(String text) {
-    return text
-        .split('')
-        .map((char) => String.fromCharCode(char.codeUnitAt(0) - 3))
-        .join();
-  }
-
   Future<void> _saveCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
-      await prefs.setString('email', _emailController.text.trim());
-      await prefs.setString(
-          'password', _encrypt(_passwordController.text.trim()));
-      await prefs.setBool('rememberMe', true);
+      await _storage.write(key: 'email', value: _emailController.text.trim());
+      await _storage.write(key: 'password', value: _passwordController.text.trim());
+      await _storage.write(key: 'rememberMe', value: 'true');
     } else {
-      await prefs.clear();
+      await _storage.deleteAll();
     }
   }
 

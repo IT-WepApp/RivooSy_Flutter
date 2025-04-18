@@ -3,50 +3,34 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:user_app/services/order_service.dart';
 import 'package:shared_models/order_model.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyOrdersPage extends StatefulWidget {
+class MyOrdersPage extends ConsumerWidget {
   const MyOrdersPage({super.key});
 
   @override
-  State<MyOrdersPage> createState() => _MyOrdersPageState();
-}
-
-class _MyOrdersPageState extends State<MyOrdersPage> {
-  final OrderService _orderService = OrderService();
-  late Future<List<OrderModel>> _ordersFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _ordersFuture = _fetchOrders();
-  }
-
-  Future<List<OrderModel>> _fetchOrders() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId != null) {
-      return _orderService.getOrdersForUser(userId);
-    }
-    return [];
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ordersState = ref.watch(myOrdersProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Orders'),
       ),
-      body: FutureBuilder<List<OrderModel>>(
-        future: _ordersFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+      body: ordersState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('Error: $error')),
+        data: (orders) {
+          if (orders.isNotEmpty) {
+            return _buildOrderList(context, orders);
+          } else {
+            return const Center(child: Text('You have no orders yet.'));
           }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          final orders = snapshot.data;
-          if (orders != null && orders.isNotEmpty) {
-            return ListView.builder(
+        },
+      ),
+    );
+  }
+
+  Widget _buildOrderList(BuildContext context, List<OrderModel> orders) {
+    return ListView.builder(
               itemCount: orders.length,
               itemBuilder: (context, index) {
                 final order = orders[index];
@@ -71,11 +55,33 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                   ),
                 );
               },
-            );
-          }
-          return const Center(child: Text('You have no orders yet.'));
-        },
-      ),
-    );
+            );  
+}
+}
+
+final myOrdersProvider = StateNotifierProvider<MyOrdersNotifier,
+    AsyncValue<List<OrderModel>>>((ref) {
+  return MyOrdersNotifier(ref);
+});
+
+class MyOrdersNotifier extends StateNotifier<AsyncValue<List<OrderModel>>> {
+  MyOrdersNotifier(this.ref) : super(const AsyncValue.loading()) {
+    fetchOrders();
+  }
+  final Ref ref;
+
+  Future<void> fetchOrders() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) {
+      state = const AsyncValue.data([]);
+      return;
+    }
+
+    try {
+      final orders = await ref.read(orderServiceProvider).getOrdersForUser(userId);
+      state = AsyncValue.data(orders);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
   }
 }

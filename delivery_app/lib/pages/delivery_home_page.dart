@@ -3,7 +3,7 @@ import 'package:shared_services/order_service.dart';
 import 'package:shared_models/shared_models.dart';
 
 class DeliveryHomePage extends StatefulWidget {
-  const DeliveryHomePage({Key? key}) : super(key: key);
+  const DeliveryHomePage({super.key});
 
   @override
   State<DeliveryHomePage> createState() => _DeliveryHomePageState();

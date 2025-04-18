@@ -7,7 +7,7 @@ void main() {
 }
 
 class DeliveryApp extends StatelessWidget {
-  const DeliveryApp({Key? key}) : super(key: key);
+  const DeliveryApp({super.key});
 
   @override
   Widget build(BuildContext context) {

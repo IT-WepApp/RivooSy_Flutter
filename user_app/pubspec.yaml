@@ -20,10 +20,14 @@ dependencies:
   flutter_local_notifications: ^19.1.0
   overlay_support: ^2.0.0
   shared_preferences: ^2.2.2
+  flutter_secure_storage: ^9.2.2
 
   # واجهة المستخدم
   cached_network_image: ^3.3.1
   intl: ^0.20.2
+
+  # إدارة الحالة
+  flutter_riverpod: ^2.5.1
 
   # الحزم المشتركة في المونوربو
   shared_models:

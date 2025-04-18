@@ -19,6 +19,8 @@ dependencies:
   shared_widgets:
     path: ../shared_modules/shared_widgets
 
+  flutter_secure_storage: ^9.2.2
+
   firebase_auth: ^5.5.2
 
 dev_dependencies:

@@ -1,5 +1,6 @@
-import 'package:user_app/models/store_model.dart'; // Assuming this model exists
+import 'package:shared_models/store_model.dart'; // Assuming this model exists
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 class StoreService {
@@ -33,3 +34,5 @@ class StoreService {
     return await _firestore.collection('stores').doc(storeId).get();
   }
 }
+
+final storeServiceProvider = Provider<StoreService>((ref) => StoreService());

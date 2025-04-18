@@ -5,10 +5,10 @@ class SellerCustomButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const SellerCustomButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:user_app/models/cart_item_model.dart'; // Assuming this model exists
+import 'package:shared_models/cart_item_model.dart'; // Assuming this model exists
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CartService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -97,9 +98,6 @@ class CartService {
       print('Error removing item from cart: $e');
     }
   }
-
-  /// Alias method for removeFromCart
-  Future<void> removeCartItem(String userId, String productId) async {
-    return removeFromCart(userId, productId);
-  }
 }
+
+final cartServiceProvider = Provider<CartService>((ref) => CartService());
